@@ -6,22 +6,11 @@ namespace PhpPact\Consumer\Model;
  * Response expectation that would be in response to a Consumer request from the Provider.
  * Class ProviderResponse.
  */
-class ProviderResponse implements \JsonSerializable
+class ProviderResponse
 {
-    /**
-     * @var int
-     */
-    private $status;
-
-    /**
-     * @var null|string[]
-     */
-    private $headers;
-
-    /**
-     * @var null|array
-     */
-    private $body;
+    private int $status;
+    private ?string $body  = null;
+    private array $headers = [];
 
     /**
      * @return int
@@ -44,75 +33,58 @@ class ProviderResponse implements \JsonSerializable
     }
 
     /**
-     * @return null|string[]
+     * @return array
      */
-    public function getHeaders()
+    public function getHeaders(): array
     {
         return $this->headers;
     }
 
     /**
-     * @param string[] $headers
+     * @param array $headers
      *
      * @return ProviderResponse
      */
     public function setHeaders(array $headers): self
     {
-        $this->headers = $headers;
+        $this->headers = [];
+        foreach ($headers as $header => $values) {
+            $this->addHeader($header, ...$values);
+        }
 
         return $this;
     }
 
     /**
-     * @param string         $header
-     * @param array | string $value
+     * @param string $header
+     * @param string ...$values
      *
      * @return ProviderResponse
      */
-    public function addHeader(string $header, $value): self
+    public function addHeader(string $header, string ...$values): self
     {
-        $this->headers[$header] = $value;
+        $this->headers[$header] = $values;
 
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return null|string
      */
-    public function getBody()
+    public function getBody(): ?string
     {
         return $this->body;
     }
 
     /**
-     * @param iterable $body
+     * @param string $body
      *
      * @return ProviderResponse
      */
-    public function setBody($body): self
+    public function setBody(string $body): self
     {
         $this->body = $body;
 
         return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function jsonSerialize()
-    {
-        $results = [
-            'status' => $this->getStatus(),
-        ];
-
-        if ($this->getHeaders() !== null) {
-            $results['headers'] = $this->getHeaders();
-        }
-
-        if ($this->getBody() !== null) {
-            $results['body'] = $this->getBody();
-        }
-
-        return $results;
     }
 }

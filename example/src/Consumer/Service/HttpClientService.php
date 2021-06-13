@@ -3,6 +3,7 @@
 namespace Consumer\Service;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Uri;
 
 /**
@@ -11,11 +12,8 @@ use GuzzleHttp\Psr7\Uri;
  */
 class HttpClientService
 {
-    /** @var Client */
-    private $httpClient;
-
-    /** @var string */
-    private $baseUri;
+    private Client $httpClient;
+    private string $baseUri;
 
     public function __construct(string $baseUri)
     {
@@ -28,6 +26,8 @@ class HttpClientService
      *
      * @param string $name
      *
+     * @throws GuzzleException
+     *
      * @return string
      */
     public function getHelloString(string $name): string
@@ -38,13 +38,15 @@ class HttpClientService
         $body   = $response->getBody();
         $object = \json_decode($body);
 
-        return $object->message;
+        return $object->message->data->generate;
     }
 
     /**
      * Get Goodbye String
      *
      * @param string $name
+     *
+     * @throws GuzzleException
      *
      * @return string
      */

@@ -2,47 +2,43 @@
 
 namespace PhpPact\Consumer;
 
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Uri;
 use PhpPact\Consumer\Matcher\Matcher;
+use PhpPact\Consumer\Model\ConsumerConfig;
 use PhpPact\Consumer\Model\ConsumerRequest;
 use PhpPact\Consumer\Model\ProviderResponse;
-use PhpPact\Http\GuzzleClient;
-use PhpPact\Standalone\Exception\MissingEnvVariableException;
-use PhpPact\Standalone\MockService\MockServer;
-use PhpPact\Standalone\MockService\MockServerEnvConfig;
-use PhpPact\Standalone\MockService\Service\MockServerHttpService;
-use PhpPact\Standalone\MockService\Service\MockServerHttpServiceInterface;
 use PHPUnit\Framework\TestCase;
 
 class InteractionBuilderTest extends TestCase
 {
-    /** @var MockServerHttpServiceInterface */
-    private $service;
-
-    /** @var MockServer */
-    private $mockServer;
+    private InteractionBuilder $builder;
+    private string $consumer = 'test-consumer';
+    private string $provider = 'test-provider';
+    private string $dir      = __DIR__ . '/../../_output';
+    private Client $httpClient;
 
     /**
-     * @throws MissingEnvVariableException
-     * @throws \Exception
+     * @throws Exception
      */
     protected function setUp(): void
     {
-        $config           = new MockServerEnvConfig();
-        $this->mockServer = new MockServer($config);
-        $this->mockServer->start();
-        $this->service = new MockServerHttpService(new GuzzleClient(), $config);
-    }
-
-    protected function tearDown(): void
-    {
-        $this->mockServer->stop();
+        $config = new ConsumerConfig();
+        $config->setProvider($this->provider);
+        $config->setConsumer($this->consumer);
+        $config->setPactDir($this->dir);
+        $config->setPactSpecificationVersion('3.0.0');
+        $this->builder    = new InteractionBuilder($config);
+        $this->httpClient = new Client();
     }
 
     /**
-     * @throws MissingEnvVariableException
-     * @throws \Exception
+     * @throws Exception
+     * @throws GuzzleException
      */
-    public function testSimpleGet()
+    public function testMultipleInteractions(): void
     {
         $matcher = new Matcher();
 
@@ -55,33 +51,26 @@ class InteractionBuilderTest extends TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => 'Hello, world!',
                 'age'     => $matcher->like(73),
-            ])
+            ]))
             ->addHeader('Content-Type', 'application/json');
 
-        $builder = new InteractionBuilder(new MockServerEnvConfig());
-        $result  = $builder
-            ->given('A test request.')
-            ->uponReceiving('A test response.')
+        // Simple get request.
+        $this->builder
+            ->newInteraction()
+            ->given('A single item.')
+            ->uponReceiving('A simple get request.')
             ->with($request)
             ->willRespondWith($response);
 
-        $this->assertTrue($result);
-    }
-
-    /**
-     * @throws MissingEnvVariableException
-     */
-    public function testPostWithBody()
-    {
         $request = new ConsumerRequest();
         $request
             ->setPath('/something')
             ->setMethod('POST')
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'someStuff'  => 'someOtherStuff',
                 'someNumber' => 12,
                 'anArray'    => [
@@ -89,30 +78,47 @@ class InteractionBuilderTest extends TestCase
                     'words here',
                     493.5,
                 ],
-            ]);
+            ]));
 
         $response = new ProviderResponse();
         $response
-            ->setStatus(200)
+            ->setStatus(201)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => 'Hello, world!',
-            ]);
+            ]));
 
-        $builder = new InteractionBuilder(new MockServerEnvConfig());
-        $result  = $builder
-            ->given('A test request.')
-            ->uponReceiving('A test response.')
+        // Post request with body.
+        $this->builder
+            ->newInteraction()
+            ->given('It does not matter.')
+            ->uponReceiving('A post request with body.')
             ->with($request)
-            ->willRespondWith($response);
+            ->willRespondWith($response)
+            ->createMockServer();
 
-        $this->assertTrue($result);
+        $this->httpClient->post(new Uri("{$this->builder->getBaseUri()}/something"), [
+            'headers' => ['Content-Type' => 'application/json'],
+            'json'    => [
+                'someStuff'  => 'someThingElse',
+                'someNumber' => 11,
+                'anArray'    => [
+                    'some words',
+                    'some other words here',
+                    99.99,
+                ],
+            ],
+            'http_errors' => false,
+        ]);
+
+        $this->assertFalse($this->builder->verify());
     }
 
     /**
-     * @throws MissingEnvVariableException
+     * @throws Exception
+     * @throws GuzzleException
      */
-    public function testBuildWithEachLikeMatcher()
+    public function testSingleInteraction(): void
     {
         $matcher = new Matcher();
 
@@ -120,26 +126,65 @@ class InteractionBuilderTest extends TestCase
         $request
             ->setPath('/something')
             ->setMethod('GET')
-            ->addHeader('Content-Type', 'application/json');
+            ->addHeader('Content-Type', 'application/json')
+            ->addQueryParameter('test', 1)
+            ->addQueryParameter('another[]', 2, 33);
 
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'list' => $matcher->eachLike([
                     'test'    => 1,
                     'another' => 2,
                 ]),
-            ]);
+            ]));
 
-        $builder = new InteractionBuilder(new MockServerEnvConfig());
-        $result  = $builder
-            ->given('A test request.')
-            ->uponReceiving('A test response.')
+        $this->builder
+            ->newInteraction()
+            ->given('A list of items.')
+            ->uponReceiving('A get request with list in body.')
             ->with($request)
-            ->willRespondWith($response);
+            ->willRespondWith($response)
+            ->createMockServer();
 
-        $this->assertTrue($result);
+        $this->httpClient->get(new Uri("{$this->builder->getBaseUri()}/something?test=1&another[]=2&another[]=33"), [
+            'headers' => ['Content-Type' => 'application/json'],
+        ]);
+
+        $this->assertTrue($this->builder->verify());
+    }
+
+    public function testGetBaseUriWhenMockServerNotStarted(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Mock server is not started.');
+        $this->builder->getBaseUri();
+    }
+
+    public function testVerifyWhenMockServerNotStarted(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Mock server is not started.');
+        $this->builder->verify();
+    }
+
+    public function testGetBaseUriWhenMockServerStopped(): void
+    {
+        $this->builder->createMockServer();
+        $this->builder->verify();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Mock server is not started.');
+        $this->builder->getBaseUri();
+    }
+
+    public function testVerifyWhenMockServerStopped(): void
+    {
+        $this->builder->createMockServer();
+        $this->builder->verify();
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Mock server is not started.');
+        $this->builder->verify();
     }
 }

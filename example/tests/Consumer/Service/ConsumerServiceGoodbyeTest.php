@@ -2,17 +2,23 @@
 
 namespace Consumer\Service;
 
+use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use PhpPact\Consumer\InteractionBuilder;
+use PhpPact\Consumer\Model\ConsumerEnvConfig;
 use PhpPact\Consumer\Model\ConsumerRequest;
 use PhpPact\Consumer\Model\ProviderResponse;
-use PhpPact\Standalone\Exception\MissingEnvVariableException;
-use PhpPact\Standalone\MockService\MockServerEnvConfig;
+use PhpPact\Installer\Exception\LibrariesNotInstalledException;
+use PhpPact\Installer\Exception\NoInstallerFoundException;
 use PHPUnit\Framework\TestCase;
 
 class ConsumerServiceGoodbyeTest extends TestCase
 {
     /**
-     * @throws MissingEnvVariableException
+     * @throws GuzzleException
+     * @throws NoInstallerFoundException
+     * @throws LibrariesNotInstalledException
+     * @throws Exception
      */
     public function testGetGoodbyeString()
     {
@@ -26,23 +32,25 @@ class ConsumerServiceGoodbyeTest extends TestCase
         $response
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => 'Goodbye, Bob'
-            ]);
+            ]));
 
-        $config      = new MockServerEnvConfig();
+        $config      = new ConsumerEnvConfig();
+        $config->setProvider('someProvider');
         $builder     = new InteractionBuilder($config);
         $builder
+            ->newInteraction()
             ->given('Get Goodbye')
             ->uponReceiving('A get request to /goodbye/{name}')
             ->with($request)
-            ->willRespondWith($response);
+            ->willRespondWith($response)
+            ->createMockServer();
 
-        $service = new HttpClientService($config->getBaseUri());
+        $service = new HttpClientService($builder->getBaseUri());
         $result  = $service->getGoodbyeString('Bob');
 
-        $builder->verify();
-
+        $this->assertTrue($builder->verify(), 'Expects verification to pass');
         $this->assertEquals('Goodbye, Bob', $result);
     }
 }

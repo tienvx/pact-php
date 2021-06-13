@@ -256,5 +256,5 @@ vendor/*
 .buildpath
 
 test_results
-pact
+lib
 example/output/*

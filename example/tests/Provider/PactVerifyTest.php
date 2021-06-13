@@ -3,12 +3,12 @@
 namespace Provider;
 
 use GuzzleHttp\Psr7\Uri;
-use PhpPact\Standalone\Installer\Exception\FileDownloadFailureException;
-use PhpPact\Standalone\Installer\Exception\NoDownloaderFoundException;
-use PhpPact\Standalone\ProviderVerifier\Model\VerifierConfig;
-use PhpPact\Standalone\ProviderVerifier\Verifier;
-use PhpPact\Standalone\Runner\ProcessRunner;
+use PhpPact\Installer\Exception\LibrariesNotInstalledException;
+use PhpPact\Installer\Exception\NoInstallerFoundException;
+use PhpPact\Provider\Model\VerifierConfig;
+use PhpPact\Provider\Verifier;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 /**
  * This is an example on how you could use the included amphp/process wrapper to start your API to run PACT verification against a Provider.
@@ -16,19 +16,27 @@ use PHPUnit\Framework\TestCase;
  */
 class PactVerifyTest extends TestCase
 {
-    /** @var ProcessRunner */
-    private $processRunner;
+    private Process $proxy;
+    private Process $app;
 
     /**
      * Run the PHP build-in web server.
      */
     protected function setUp(): void
     {
-        $publicPath    =  __DIR__ . '/../../src/Provider/public/';
+        $providerPath    = __DIR__ . '/../../src/Provider';
 
-        $this->processRunner = new ProcessRunner('php', ['-S', 'localhost:7202', '-t', $publicPath]);
+        $this->proxy = new Process(['php', '-S', 'localhost:7202', '-t', $providerPath . '/proxy']);
+        $this->proxy->start();
+        $this->proxy->waitUntil(function ($type, $output) {
+            return false !== \strpos($output, 'Development Server (http://localhost:7202) started');
+        });
 
-        $this->processRunner->run();
+        $this->app = new Process(['php', '-S', 'localhost:7201', '-t', $providerPath . '/app']);
+        $this->app->start();
+        $this->app->waitUntil(function ($type, $output) {
+            return false !== \strpos($output, 'Development Server (http://localhost:7201) started');
+        });
     }
 
     /**
@@ -36,14 +44,15 @@ class PactVerifyTest extends TestCase
      */
     protected function tearDown(): void
     {
-        $this->processRunner->stop();
+        $this->proxy->stop();
+        $this->app->stop();
     }
 
     /**
      * This test will run after the web server is started.
      *
-     * @throws FileDownloadFailureException
-     * @throws NoDownloaderFoundException
+     * @throws NoInstallerFoundException
+     * @throws LibrariesNotInstalledException
      */
     public function testPactVerifyConsumer()
     {
@@ -51,14 +60,15 @@ class PactVerifyTest extends TestCase
         $config
             ->setProviderName('someProvider') // Providers name to fetch.
             ->setProviderVersion('1.0.0') // Providers version.
-            ->setProviderBaseUrl(new Uri('http://localhost:7202')) // URL of the Provider.
+            ->setHost('localhost')
+            ->setPort(7202)
+            ->setStateChangeUrl(new Uri('http://localhost:7202/change-state'))
+            ->setDirs(__DIR__ . '/../../pacts/')
             ; // Flag the verifier service to publish the results to the Pact Broker.
 
         // Verify that the Consumer 'someConsumer' that is tagged with 'master' is valid.
         $verifier = new Verifier($config);
-        $verifier->verifyFiles([__DIR__ . '/../../pacts/someconsumer-someprovider.json']);
 
-        // This will not be reached if the PACT verifier throws an error, otherwise it was successful.
-        $this->assertTrue(true, 'Pact Verification has failed.');
+        $this->assertTrue($verifier->verify(), 'Expects verification to pass');
     }
 }
