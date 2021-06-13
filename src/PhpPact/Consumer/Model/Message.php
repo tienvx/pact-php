@@ -4,29 +4,54 @@ namespace PhpPact\Consumer\Model;
 
 /**
  * Request/Response Pair to be posted to the Ruby Standalone Mock Server for PACT tests.
- * Class Interaction.
+ * Class Message.
  */
 class Message implements \JsonSerializable
 {
     /**
+     * @var int
+     */
+    private int $id;
+
+    /**
      * @var string
      */
-    private $description;
+    private string $description;
 
     /**
      * @var array
      */
-    private $providerStates = [];
+    private array $providerStates = [];
 
     /**
      * @var array
      */
-    private $metadata;
+    private array $metadata;
 
     /**
      * @var mixed
      */
-    private $contents;
+    private mixed $contents;
+
+    /**
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return Message
+     */
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+
+        return $this;
+    }
 
     /**
      * @return string
@@ -113,7 +138,7 @@ class Message implements \JsonSerializable
     /**
      * @return mixed
      */
-    public function getContents()
+    public function getContents(): mixed
     {
         return $this->contents;
     }
@@ -123,7 +148,7 @@ class Message implements \JsonSerializable
      *
      * @return Message
      */
-    public function setContents($contents)
+    public function setContents(mixed $contents): self
     {
         $this->contents = $contents;
 
@@ -133,8 +158,7 @@ class Message implements \JsonSerializable
     /**
      * {@inheritdoc}
      */
-    #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $out                = [];
         $out['description'] = $this->getDescription();

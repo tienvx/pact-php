@@ -3,35 +3,30 @@
 namespace PhpPact\Consumer;
 
 use PhpPact\Consumer\Model\Message;
+use PhpPact\Consumer\Model\MessagePact;
 use PhpPact\Standalone\PactConfigInterface;
-use PhpPact\Standalone\PactMessage\PactMessage;
 
 /**
- * Build a message and send it to the Ruby Standalone Mock Service
  * Class MessageBuilder.
  */
 class MessageBuilder implements BuilderInterface
 {
-    /** @var PactMessage */
-    protected $pactMessage;
-
-    /** @var PactConfigInterface */
-    protected $config;
+    /** @var MessagePact */
+    protected MessagePact $messagePact;
 
     /** @var array callable */
-    protected $callback;
+    protected array $callback;
 
     /** @var Message */
-    private $message;
+    protected Message $message;
 
     /**
      * @param PactConfigInterface $config
      */
     public function __construct(PactConfigInterface $config)
     {
-        $this->config      = $config;
         $this->message     = new Message();
-        $this->pactMessage = new PactMessage();
+        $this->messagePact = new MessagePact($config);
     }
 
     /**
@@ -112,7 +107,7 @@ class MessageBuilder implements BuilderInterface
      */
     public function reify(): string
     {
-        return $this->pactMessage->reify($this->message);
+        return $this->messagePact->reify($this->message);
     }
 
     /**
@@ -129,20 +124,18 @@ class MessageBuilder implements BuilderInterface
     {
         $this->setCallback($callback, $description);
 
-        return $this->verify($description);
+        return $this->verify();
     }
 
     /**
      * Verify the use of the pact by calling the callback
      * It also calls finalize to write the pact
      *
-     * @param false|string $description description of the pact and thus callback
-     *
      * @throws \Exception if callback is not set
      *
      * @return bool
      */
-    public function verify($description = false): bool
+    public function verify(): bool
     {
         if (\count($this->callback) < 1) {
             throw new \Exception('Callbacks need to exist to run verify.');
@@ -157,22 +150,9 @@ class MessageBuilder implements BuilderInterface
                 \call_user_func($callback, $pactJson);
             }
 
-            return $this->writePact();
+            return $this->messagePact->update();
         } catch (\Exception $e) {
             return false;
         }
-    }
-
-    /**
-     * Write the Pact without deleting the interactions.
-     *
-     * @return bool
-     */
-    public function writePact(): bool
-    {
-        // you do not want to save the reified json
-        $pactJson = \json_encode($this->message);
-
-        return $this->pactMessage->update($pactJson, $this->config->getConsumer(), $this->config->getProvider(), $this->config->getPactDir());
     }
 }

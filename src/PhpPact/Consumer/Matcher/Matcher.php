@@ -46,8 +46,8 @@ class Matcher
         }
 
         return [
-            'contents'   => $value,
-            'json_class' => 'Pact::SomethingLike',
+            'value'   => $value,
+            'pact:matcher:type' => 'type',
         ];
     }
 
@@ -61,14 +61,11 @@ class Matcher
      */
     public function eachLike($value, int $min = 1): array
     {
-        $result = [
-            'contents'   => $value,
-            'json_class' => 'Pact::ArrayLike',
+        return [
+            'value' => array_fill(0, $min, $value),
+            'pact:matcher:type' => 'type',
+            'min' => $min,
         ];
-
-        $result['min'] = $min;
-
-        return $result;
     }
 
     /**
@@ -92,15 +89,9 @@ class Matcher
         }
 
         return [
-            'data' => [
-                'generate' => $value,
-                'matcher'  => [
-                    'json_class' => 'Regexp',
-                    'o'          => 0,
-                    's'          => $pattern,
-                ],
-            ],
-            'json_class' => 'Pact::Term',
+            'value'             => $value,
+            'regex'             => $pattern,
+            'pact:matcher:type' => 'regex',
         ];
     }
 
