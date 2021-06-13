@@ -2,17 +2,17 @@
 
 namespace Consumer\Service;
 
+use PhpPact\Consumer\Exception\MockServerNotStartedException;
 use PhpPact\Consumer\InteractionBuilder;
 use PhpPact\Consumer\Model\ConsumerRequest;
 use PhpPact\Consumer\Model\ProviderResponse;
-use PhpPact\Standalone\Exception\MissingEnvVariableException;
 use PhpPact\Standalone\MockService\MockServerEnvConfig;
 use PHPUnit\Framework\TestCase;
 
 class ConsumerServiceGoodbyeTest extends TestCase
 {
     /**
-     * @throws MissingEnvVariableException
+     * @throws MockServerNotStartedException
      */
     public function testGetGoodbyeString()
     {
@@ -31,18 +31,20 @@ class ConsumerServiceGoodbyeTest extends TestCase
             ]);
 
         $config      = new MockServerEnvConfig();
+        $config->setProvider('someProvider');
         $builder     = new InteractionBuilder($config);
         $builder
+            ->newInteraction()
             ->given('Get Goodbye')
             ->uponReceiving('A get request to /goodbye/{name}')
             ->with($request)
-            ->willRespondWith($response);
+            ->willRespondWith($response)
+            ->createMockServer();
 
-        $service = new HttpClientService($config->getBaseUri());
+        $service = new HttpClientService($builder->getBaseUri());
         $result  = $service->getGoodbyeString('Bob');
 
-        $builder->verify();
-
+        $this->assertTrue($builder->verify());
         $this->assertEquals('Goodbye, Bob', $result);
     }
 }

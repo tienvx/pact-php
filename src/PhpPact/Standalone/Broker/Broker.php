@@ -6,22 +6,27 @@ use Amp\ByteStream\ResourceOutputStream;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Monolog\Logger;
-use PhpPact\Standalone\Installer\InstallManager;
+use PhpPact\Standalone\Scripts;
 use PhpPact\Standalone\Runner\ProcessRunner;
 
+/**
+ * Class Broker.
+ */
 class Broker
 {
-    /** @var Logger */
-    private $logger;
-    /** @var BrokerConfig */
-    private $config;
-    /** @var string */
-    private $command;
+    private Logger $logger;
+    private BrokerConfig $config;
+    private string $command;
 
+    /**
+     * Broker constructor.
+     *
+     * @param BrokerConfig $config
+     */
     public function __construct(BrokerConfig $config)
     {
         $this->config  = $config;
-        $this->command = (new InstallManager())->install()->getBroker();
+        $this->command = Scripts::getBroker();
         $this->logger  = (new Logger('console'))
             ->pushHandler(
                 (new StreamHandler(new ResourceOutputStream(\STDOUT)))
