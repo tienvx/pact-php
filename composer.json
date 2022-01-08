@@ -39,7 +39,8 @@
         "friendsofphp/php-cs-fixer": "^3.0",
         "php-amqplib/php-amqplib": "^3.0",
         "phpstan/phpstan": "^0.12.90",
-        "symfony/process": "^4.2 | ^5.0.9"
+        "symfony/process": "^4.2 | ^5.0.9",
+        "google/protobuf": "^3.19"
     },
     "autoload": {
         "psr-4": {
@@ -48,6 +49,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "": "example/gen",
             "PhpPactTest\\": "tests/PhpPact",
             "Consumer\\": [
                 "example/src/Consumer",
@@ -60,6 +62,9 @@
             "MessageProvider\\": [
                 "example/src/MessageProvider",
                 "example/tests/MessageProvider"
+            ],
+            "Provider\\": [
+                "example/src/Provider"
             ]
         }
     },
@@ -68,6 +73,7 @@
             "\\PhpPact\\Standalone\\Installer\\InstallManager::uninstall"
         ],
         "start-provider": "php -S localhost:58000 -t example/src/Provider/public/ example/src/Provider/public/proxy.php",
+        "gen-proto": "protoc --php_out=example/gen example/proto/area_calculator.proto",
         "static-code-analysis": "phpstan analyse src/ --level=5 -c phpstan.neon",
         "lint": "php-cs-fixer fix --config .php-cs-fixer.php --dry-run",
         "fix": "php-cs-fixer fix --config .php-cs-fixer.php",

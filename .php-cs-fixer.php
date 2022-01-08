@@ -4,6 +4,7 @@ $finder->files()
     ->in(__DIR__ . '/src')
     ->in(__DIR__ . '/tests')
     ->in(__DIR__ . '/example')
+    ->exclude('gen')
     ->name('*.php');
 
 $config = new PhpCsFixer\Config();

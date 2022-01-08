@@ -5,7 +5,6 @@ namespace PhpPact\Consumer;
 use PhpPact\Consumer\Exception\MockServerNotStartedException;
 use PhpPact\Consumer\Model\ConsumerRequest;
 use PhpPact\Consumer\Model\ProviderResponse;
-use PhpPact\Standalone\MockService\MockServerConfigInterface;
 
 /**
  * Build an interaction and send it to the Pact Rust FFI
@@ -13,26 +12,10 @@ use PhpPact\Standalone\MockService\MockServerConfigInterface;
  */
 class InteractionBuilder extends AbstractBuilder
 {
-    protected int $pact;
-    protected int $interaction;
     protected ?int $port = null;
 
     /**
-     * InteractionBuilder constructor.
-     *
      * {@inheritdoc}
-     */
-    public function __construct(MockServerConfigInterface $config)
-    {
-        parent::__construct($config);
-        $this->pact = $this->ffi->pactffi_new_pact($config->getConsumer(), $config->getProvider());
-        $this->ffi->pactffi_with_specification($this->pact, $this->getPactSpecificationVersion());
-    }
-
-    /**
-     * @param string $description what is received when the request is made
-     *
-     * @return InteractionBuilder
      */
     public function newInteraction(string $description = ''): self
     {
@@ -84,8 +67,13 @@ class InteractionBuilder extends AbstractBuilder
                 $this->ffi->pactffi_with_query_parameter($this->interaction, $key, $index, $value);
             }
         }
+
         if (!\is_null($request->getBody())) {
-            $this->ffi->pactffi_with_body($this->interaction, $this->ffi->InteractionPart_Request, null, $request->getBody());
+            if ($this->usingPlugin && \json_decode($request->getBody()) !== null) {
+                $this->ffi->pactffi_interaction_contents($this->interaction, $this->ffi->InteractionPart_Request, $request->getContentType(), $request->getBody());
+            } else {
+                $this->ffi->pactffi_with_body($this->interaction, $this->ffi->InteractionPart_Request, $request->getContentType(), $request->getBody());
+            }
         }
 
         return $this;
@@ -105,7 +93,11 @@ class InteractionBuilder extends AbstractBuilder
             }
         }
         if (!\is_null($response->getBody())) {
-            $this->ffi->pactffi_with_body($this->interaction, $this->ffi->InteractionPart_Response, null, $response->getBody());
+            if ($this->usingPlugin && \json_decode($response->getBody()) !== null) {
+                $this->ffi->pactffi_interaction_contents($this->interaction, $this->ffi->InteractionPart_Response, $response->getContentType(), $response->getBody());
+            } else {
+                $this->ffi->pactffi_with_body($this->interaction, $this->ffi->InteractionPart_Response, $response->getContentType(), $response->getBody());
+            }
         }
 
         return $this;
@@ -134,6 +126,8 @@ class InteractionBuilder extends AbstractBuilder
         }
 
         $this->ffi->pactffi_cleanup_mock_server($this->port);
+        $this->ffi->pactffi_cleanup_plugins($this->pact);
+        $this->ffi->pactffi_free_pact_handle($this->pact);
         $this->port = null;
 
         return $result;

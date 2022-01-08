@@ -34,6 +34,27 @@ class InstallerWindows extends AbstractInstaller
             'extract'       => true,
             'extractTo'     => 'pact_ffi.dll',
         ],
+        [
+            'repo'          => 'pact-plugins',
+            'filename'      => 'pact-plugin-csv-windows-x86_64.exe.gz',
+            'version'       => self::PACT_CSV_PLUGIN_VERSION,
+            'versionPrefix' => 'csv-plugin-',
+            'moveTo'        => 'plugins' . DIRECTORY_SEPARATOR . 'csv-' . self::PACT_CSV_PLUGIN_VERSION,
+            'extract'       => true,
+            'extractTo'     => 'pact-plugin-csv.exe',
+            'executable'    => true,
+        ],
+        [
+            'org'           => 'pactflow',
+            'repo'          => 'pact-protobuf-plugin',
+            'filename'      => 'pact-protobuf-plugin-windows-x86_64.exe.gz',
+            'version'       => self::PACT_PROTOBUF_PLUGIN_VERSION,
+            'versionPrefix' => 'v-',
+            'moveTo'        => 'plugins' . DIRECTORY_SEPARATOR . 'protobuf-' . self::PACT_PROTOBUF_PLUGIN_VERSION,
+            'extract'       => true,
+            'extractTo'     => 'pact-protobuf-plugin.exe',
+            'executable'    => true,
+        ],
         ...parent::FILES,
     ];
 

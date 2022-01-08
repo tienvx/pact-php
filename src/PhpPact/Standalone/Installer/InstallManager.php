@@ -69,9 +69,22 @@ class InstallManager
      */
     public function install(): Scripts
     {
-        $downloader = $this->getDownloader();
+        $scripts = $this->getDownloader()->install(self::$destinationDir);
+        $this->setPluginDirEnv();
 
-        return $downloader->install(self::$destinationDir);
+        return $scripts;
+    }
+
+    /**
+     * Set plugin dir env.
+     */
+    public function setPluginDirEnv(): void
+    {
+        $pluginDir = \getenv('PACT_PLUGIN_DIR');
+        if ($pluginDir === false) {
+            $pluginDir = realpath(self::$destinationDir . \DIRECTORY_SEPARATOR . 'plugins');
+            \putenv("PACT_PLUGIN_DIR=$pluginDir");
+        }
     }
 
     /**

@@ -14,6 +14,8 @@ abstract class AbstractInstaller implements InstallerInterface
     public const PACT_RUBY_STANDALONE_VERSION = '1.88.83';
     public const PACT_FFI_VERSION             = '0.2.6';
     public const PACT_STUB_SERVER_VERSION     = '0.4.4';
+    public const PACT_CSV_PLUGIN_VERSION      = '0.0.1';
+    public const PACT_PROTOBUF_PLUGIN_VERSION = '0.1.3';
 
     public const FILES = [
         [
@@ -21,6 +23,23 @@ abstract class AbstractInstaller implements InstallerInterface
             'filename'      => 'pact.h',
             'version'       => self::PACT_FFI_VERSION,
             'versionPrefix' => 'libpact_ffi-v',
+            'extract'       => false,
+        ],
+        [
+            'repo'          => 'pact-plugins',
+            'filename'      => 'pact-plugin.json',
+            'version'       => self::PACT_CSV_PLUGIN_VERSION,
+            'versionPrefix' => 'csv-plugin-',
+            'moveTo'        => 'plugins' . DIRECTORY_SEPARATOR . 'csv-' . self::PACT_CSV_PLUGIN_VERSION,
+            'extract'       => false,
+        ],
+        [
+            'org'           => 'pactflow',
+            'repo'          => 'pact-protobuf-plugin',
+            'filename'      => 'pact-plugin.json',
+            'version'       => self::PACT_PROTOBUF_PLUGIN_VERSION,
+            'versionPrefix' => 'v-',
+            'moveTo'        => 'plugins' . DIRECTORY_SEPARATOR . 'protobuf-' . self::PACT_PROTOBUF_PLUGIN_VERSION,
             'extract'       => false,
         ],
     ];
@@ -35,7 +54,8 @@ abstract class AbstractInstaller implements InstallerInterface
 
             foreach (static::FILES as $file) {
                 $uri = \sprintf(
-                    'https://github.com/pact-foundation/%s/releases/download/%s%s/%s',
+                    'https://github.com/%s/%s/releases/download/%s%s/%s',
+                    $file['org'] ?? 'pact-foundation',
                     $file['repo'],
                     $file['versionPrefix'],
                     $file['version'],
@@ -44,9 +64,16 @@ abstract class AbstractInstaller implements InstallerInterface
                 $tempFilePath = $destinationDir . DIRECTORY_SEPARATOR . $file['filename'];
 
                 $this->download($uri, $tempFilePath);
+                if (isset($file['moveTo'])) {
+                    $moveToDir = $destinationDir . DIRECTORY_SEPARATOR . $file['moveTo'];
+                    if (!file_exists($moveToDir)) {
+                        mkdir($moveToDir, 0777, true);
+                    }
+                    rename($tempFilePath, $tempFilePath = $moveToDir . DIRECTORY_SEPARATOR . $file['filename']);
+                }
                 if ($file['extract']) {
                     $this
-                        ->extract($tempFilePath, $destinationDir, $file['extractTo'] ?? null, $file['executable'] ?? false)
+                        ->extract($tempFilePath, $moveToDir ?? $destinationDir, $file['extractTo'] ?? null, $file['executable'] ?? false)
                         ->deleteCompressed($tempFilePath);
                 }
             }

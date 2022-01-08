@@ -34,6 +34,27 @@ class InstallerMac extends AbstractInstaller
             'extract'       => true,
             'extractTo'     => 'libpact_ffi.dylib',
         ],
+        [
+            'repo'          => 'pact-plugins',
+            'filename'      => 'pact-plugin-csv-osx-x86_64.gz',
+            'version'       => self::PACT_CSV_PLUGIN_VERSION,
+            'versionPrefix' => 'csv-plugin-',
+            'moveTo'        => 'plugins' . DIRECTORY_SEPARATOR . 'csv-' . self::PACT_CSV_PLUGIN_VERSION,
+            'extract'       => true,
+            'extractTo'     => 'pact-plugin-csv',
+            'executable'    => true,
+        ],
+        [
+            'org'           => 'pactflow',
+            'repo'          => 'pact-protobuf-plugin',
+            'filename'      => 'pact-protobuf-plugin-osx-x86_64.gz',
+            'version'       => self::PACT_PROTOBUF_PLUGIN_VERSION,
+            'versionPrefix' => 'v-',
+            'moveTo'        => 'plugins' . DIRECTORY_SEPARATOR . 'protobuf-' . self::PACT_PROTOBUF_PLUGIN_VERSION,
+            'extract'       => true,
+            'extractTo'     => 'pact-protobuf-plugin',
+            'executable'    => true,
+        ],
         ...parent::FILES,
     ];
 

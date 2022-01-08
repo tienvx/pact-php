@@ -53,6 +53,7 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: ffi
+          tools: protoc
 
       - name: Copy the inis
         if: runner.os == 'Windows'
@@ -63,6 +64,9 @@ jobs:
         with:
           dependency-versions: ${{ matrix.dependencies }}
           composer-options: ${{ matrix.composer-options }}
+
+      - name: Composer gen proto
+        run: composer gen-proto
 
       - name: Composer test
         run: composer test

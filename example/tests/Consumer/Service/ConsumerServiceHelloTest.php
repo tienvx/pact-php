@@ -3,10 +3,13 @@
 namespace Consumer\Service;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use PhpPact\Consumer\Exception\MockServerNotStartedException;
 use PhpPact\Consumer\InteractionBuilder;
 use PhpPact\Consumer\Matcher\Matcher;
 use PhpPact\Consumer\Model\ConsumerRequest;
 use PhpPact\Consumer\Model\ProviderResponse;
+use PhpPact\Standalone\Installer\Exception\FileDownloadFailureException;
 use PhpPact\Standalone\Installer\Exception\NoDownloaderFoundException;
 use PhpPact\Standalone\MockService\MockServerEnvConfig;
 use PHPUnit\Framework\TestCase;
@@ -18,6 +21,9 @@ class ConsumerServiceHelloTest extends TestCase
      *
      * @throws NoDownloaderFoundException
      * @throws Exception
+     * @throws FileDownloadFailureException
+     * @throws MockServerNotStartedException
+     * @throws GuzzleException
      */
     public function testGetHelloString()
     {
@@ -35,9 +41,9 @@ class ConsumerServiceHelloTest extends TestCase
         $response
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => $matcher->term('Hello, Bob', '(Hello, )[A-Za-z]')
-            ]);
+            ]));
 
         // Create a configuration that reflects the server that was started. You can create a custom MockServerConfigInterface if needed.
         $config  = new MockServerEnvConfig();

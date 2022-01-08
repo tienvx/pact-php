@@ -13,9 +13,9 @@ class ConsumerRequestTest extends TestCase
             ->setMethod('PUT')
             ->setPath('/somepath')
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'currentCity' => 'Austin',
-            ]);
+            ]));
 
         $this->assertEquals('PUT', $model->getMethod());
         $this->assertEquals(['Content-Type' => ['application/json']], $model->getHeaders());

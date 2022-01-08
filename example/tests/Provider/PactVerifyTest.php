@@ -42,9 +42,6 @@ class PactVerifyTest extends TestCase
 
     /**
      * This test will run after the web server is started.
-     *
-     * @throws NoDownloaderFoundException
-     * @throws FileDownloadFailureException
      */
     public function testPactVerifyConsumer()
     {

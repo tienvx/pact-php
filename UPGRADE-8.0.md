@@ -17,6 +17,8 @@ UPGRADE FROM 7.x to 8.0
  * [BC BREAK] Removed `MockServerConfig::getBaseUri()`, use `InteractionBuilder::getBaseUri()` instead
  * [BC BREAK] Need to call `MockServerConfigInterface::setProvider` in each test case
  * [BC BREAK] Added `InteractionBuilder::newInteraction`, required to be called before each interaction.
+ * [BC BREAK] Added `MessageBuilder::newInteraction`, required to be called before each message.
+ * Added `SyncMessageBuilder`
  * [BC BREAK] Removed `MockServer`, use `InteractionBuilder::createMockServer` instead
  * Allowed multiple interactions per mock server
 
@@ -113,3 +115,6 @@ UPGRADE FROM 7.x to 8.0
  * Removed `Model\Interaction`
  * Removed `Model\Message`
  * [BC BREAK] Updated `StubServerConfigInterface`, see [pact-stub-server](https://github.com/pact-foundation/pact-stub-server)
+ * [BC BREAK] `MessageBuilder::withContent(mixed $contents)` is replaced by `MessageBuilder::withContent(string $contents, string $contentType)`
+ * [BC BREAK] `ConsumerRequest::setBody(mixed $body)` is replaced by `ConsumerRequest::setBody(string $body)`
+ * [BC BREAK] `ProviderResponse::setBody(mixed $body)` is replaced by `ProviderResponse::setBody(string $body)`

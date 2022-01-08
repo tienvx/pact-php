@@ -52,10 +52,10 @@ class InteractionBuilderTest extends TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(200)
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => 'Hello, world!',
                 'age'     => $matcher->like(73),
-            ])
+            ]))
             ->addHeader('Content-Type', 'application/json');
 
         // Simple get request.
@@ -71,7 +71,7 @@ class InteractionBuilderTest extends TestCase
             ->setPath('/something')
             ->setMethod('POST')
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'someStuff'  => 'someOtherStuff',
                 'someNumber' => 12,
                 'anArray'    => [
@@ -79,15 +79,15 @@ class InteractionBuilderTest extends TestCase
                     'words here',
                     493.5,
                 ],
-            ]);
+            ]));
 
         $response = new ProviderResponse();
         $response
             ->setStatus(201)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => 'Hello, world!',
-            ]);
+            ]));
 
         // Post request with body.
         $this->builder
@@ -136,12 +136,12 @@ class InteractionBuilderTest extends TestCase
         $response
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'list' => $matcher->eachLike([
                     'test'    => 1,
                     'another' => 2,
                 ]),
-            ]);
+            ]));
 
         $this->builder
             ->newInteraction()
