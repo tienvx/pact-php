@@ -4,7 +4,6 @@ namespace PhpPact\Consumer;
 
 use Exception;
 use PhpPact\Ffi\Helper;
-use PhpPact\Standalone\MockService\MockServerConfigInterface;
 
 /**
  * Build a message and send it to the Pact Rust FFI
@@ -13,19 +12,15 @@ use PhpPact\Standalone\MockService\MockServerConfigInterface;
 class MessageBuilder extends AbstractBuilder
 {
     protected array $callback;
-    protected int $messagePact;
-    protected int $message;
 
     /**
-     * MessageBuilder constructor.
-     *
      * {@inheritdoc}
      */
-    public function __construct(MockServerConfigInterface $config)
+    public function newInteraction(string $description = ''): self
     {
-        parent::__construct($config);
-        $this->messagePact = $this->ffi->pactffi_new_message_pact($config->getConsumer(), $config->getProvider());
-        $this->message     = $this->ffi->pactffi_new_message($this->messagePact, '');
+        $this->interaction = $this->ffi->pactffi_new_message_interaction($this->pact, $description);
+
+        return $this;
     }
 
     /**
@@ -57,10 +52,10 @@ class MessageBuilder extends AbstractBuilder
     {
         if (\count($params) > 0) {
             foreach ($params as $name => $value) {
-                $this->ffi->pactffi_message_given_with_param($this->message, $description, (string) $name, $value);
+                $this->ffi->pactffi_message_given_with_param($this->interaction, $description, (string) $name, $value);
             }
         } else {
-            $this->ffi->pactffi_message_given($this->message, $description);
+            $this->ffi->pactffi_message_given($this->interaction, $description);
         }
 
         return $this;
@@ -73,7 +68,7 @@ class MessageBuilder extends AbstractBuilder
      */
     public function expectsToReceive(string $description): self
     {
-        $this->ffi->pactffi_message_expects_to_receive($this->message, $description);
+        $this->ffi->pactffi_message_expects_to_receive($this->interaction, $description);
 
         return $this;
     }
@@ -86,7 +81,7 @@ class MessageBuilder extends AbstractBuilder
     public function withMetadata(array $metadata): self
     {
         foreach ($metadata as $key => $value) {
-            $this->ffi->pactffi_message_with_metadata($this->message, $key, $value);
+            $this->ffi->pactffi_message_with_metadata($this->interaction, $key, $value);
         }
 
         return $this;
@@ -95,21 +90,19 @@ class MessageBuilder extends AbstractBuilder
     /**
      * Make the http request to the Mock Service to register the message.  Content is required.
      *
-     * @param mixed $contents required to be in the message
+     * @param string $contents required to be in the message
+     * @param string $contentType
      *
      * @return self
      */
-    public function withContent($contents): self
+    public function withContent(string $contents, string $contentType = 'text/plain'): self
     {
-        if (\is_string($contents)) {
-            $contentType = 'text/plain';
+        if ($this->usingPlugin && \json_decode($contents) !== null) {
+            $this->ffi->pactffi_interaction_contents($this->interaction, $this->ffi->InteractionPart_Request, $contentType, $contents);
         } else {
-            $contents    = \json_encode($contents);
-            $contentType = 'application/json';
+            $contents = Helper::getString($contents);
+            $this->ffi->pactffi_message_with_contents($this->interaction, $contentType, $contents->getValue(), $contents->getSize());
         }
-
-        $contents = Helper::getString($contents);
-        $this->ffi->pactffi_message_with_contents($this->message, $contentType, $contents->getValue(), $contents->getSize());
 
         return $this;
     }
@@ -121,7 +114,7 @@ class MessageBuilder extends AbstractBuilder
      */
     public function reify(): string
     {
-        return $this->ffi->pactffi_message_reify($this->message);
+        return $this->ffi->pactffi_message_reify($this->interaction);
     }
 
     /**
@@ -164,9 +157,12 @@ class MessageBuilder extends AbstractBuilder
                 \call_user_func($callback, $contents);
             }
 
-            return !$this->ffi->pactffi_write_message_pact_file($this->messagePact, $this->config->getPactDir(), false);
+            return !$this->ffi->pactffi_pact_handle_write_file($this->pact, $this->config->getPactDir(), false);
         } catch (\Exception $e) {
             return false;
+        } finally {
+            $this->ffi->pactffi_cleanup_plugins($this->pact);
+            $this->ffi->pactffi_free_pact_handle($this->pact);
         }
     }
 }

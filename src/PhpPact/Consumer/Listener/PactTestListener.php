@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Uri;
 use PhpPact\Standalone\Broker\Broker;
 use PhpPact\Standalone\Broker\BrokerConfig;
 use PhpPact\Standalone\MockService\MockServerEnvConfig;
+use PhpPact\Standalone\Scripts;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
@@ -50,6 +51,15 @@ class PactTestListener implements TestListener
     public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
         $this->failed = true;
+    }
+
+    public function startTestSuite(TestSuite $suite): void
+    {
+        $pluginDir = \getenv('PACT_PLUGIN_DIR');
+        if ($pluginDir === false) {
+            $pluginDir = realpath(Scripts::getPluginsDir());
+            \putenv("PACT_PLUGIN_DIR=$pluginDir");
+        }
     }
 
     /**

@@ -4,12 +4,16 @@ namespace Consumer\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Uri;
+use Plugins\AreaResponse;
+use Plugins\CalculatorInterface;
+use Plugins\ShapeMessage;
+use GuzzleHttp\Exception\GuzzleException;
 
 /**
  * Example HTTP Service
  * Class HttpClientService
  */
-class HttpClientService
+class HttpClientService implements CalculatorInterface
 {
     private Client $httpClient;
     private string $baseUri;
@@ -26,6 +30,8 @@ class HttpClientService
      * @param string $name
      *
      * @return string
+     *
+     * @throws GuzzleException
      */
     public function getHelloString(string $name): string
     {
@@ -44,6 +50,8 @@ class HttpClientService
      * @param string $name
      *
      * @return string
+     *
+     * @throws GuzzleException
      */
     public function getGoodbyeString(string $name): string
     {
@@ -54,5 +62,40 @@ class HttpClientService
         $object = \json_decode($body);
 
         return $object->message;
+    }
+
+    /**
+     * Get CSV file
+     *
+     * @return array
+     *
+     * @throws GuzzleException
+     */
+    public function getCsvFile(): array
+    {
+        $response = $this->httpClient->get("{$this->baseUri}/report.csv", [
+            'headers' => ['Content-Type' => 'text/csv']
+        ]);
+
+        return str_getcsv($response->getBody());
+    }
+
+    /**
+     * @param ShapeMessage $request
+     *
+     * @return AreaResponse
+     *
+     * @throws GuzzleException
+     */
+    public function calculate(ShapeMessage $request): AreaResponse
+    {
+        $httpResponse = $this->httpClient->post("{$this->baseUri}/calculate", [
+            'headers' => ['Content-Type' => 'application/protobuf;message=ShapeMessage'],
+            'body' => $request->serializeToString(),
+        ]);
+        $response = new AreaResponse();
+        $response->mergeFromString($httpResponse->getBody()->getContents());
+
+        return $response;
     }
 }

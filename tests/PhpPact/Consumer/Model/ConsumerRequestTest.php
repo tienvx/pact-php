@@ -14,9 +14,9 @@ class ConsumerRequestTest extends TestCase
             ->setMethod('PUT')
             ->setPath('/somepath')
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'currentCity' => 'Austin',
-            ]);
+            ]));
 
         $this->assertEquals('PUT', $model->getMethod());
         $this->assertEquals(['Content-Type' => ['application/json']], $model->getHeaders());
@@ -33,9 +33,9 @@ class ConsumerRequestTest extends TestCase
             ->setMethod('PATCH')
             ->setPath(\json_encode($matcher->regex("/somepath/$pathVariable/status", '\/somepath\/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\/status')))
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'status' => 'finished',
-            ]);
+            ]));
 
         $this->assertEquals('PATCH', $model->getMethod());
         $this->assertEquals(['Content-Type' => ['application/json']], $model->getHeaders());

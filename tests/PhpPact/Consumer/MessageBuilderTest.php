@@ -37,10 +37,11 @@ class MessageBuilderTest extends TestCase
         $metadata = ['queue' => 'And the clowns have all gone to bed', 'routing_key' => 'And the clowns have all gone to bed'];
 
         $this->builder
+            ->newInteraction()
             ->given('You can hear happiness staggering on down the street')
             ->expectsToReceive('footprints dressed in red')
             ->withMetadata($metadata)
-            ->withContent($contents);
+            ->withContent(\json_encode($contents), 'application/json');
 
         $this->builder->setCallback(function (string $message) use ($contents) {
             $obj = \json_decode($message);

@@ -12,9 +12,9 @@ class ProviderResponseTest extends TestCase
         $model
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'currentCity' => 'Austin',
-            ]);
+            ]));
 
         $this->assertEquals(200, $model->getStatus());
         $this->assertEquals(['Content-Type' => ['application/json']], $model->getHeaders());

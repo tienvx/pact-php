@@ -47,8 +47,102 @@ class Scripts
         return __DIR__ . '/../../../bin/pact-ruby-standalone/bin/pact-broker' . (PHP_OS_FAMILY === 'Windows' ? '.bat' : '');
     }
 
+    /**
+     * @return string
+     */
+    public static function getPluginsDir(): string
+    {
+        return __DIR__ . '/../../../bin/pact-plugins';
+    }
+
+    /**
+     * @return void
+     */
     public static function makeStubServiceExecutable(): void
     {
-        chmod(static::getStubService(), 0777 & ~umask());
+        static::makeBinaryExecutable(static::getStubService());
+    }
+
+    /**
+     * @return void
+     */
+    public static function makeCsvPluginExecutable(): void
+    {
+        static::makeBinaryExecutable(static::getPlugin('csv'));
+    }
+
+    /**
+     * @return void
+     */
+    public static function makeProtobufPluginExecutable(): void
+    {
+        static::makeBinaryExecutable(static::getPlugin('protobuf'));
+    }
+
+    /**
+     * @return void
+     */
+    public static function correctCsvPluginEntrypoint(): void
+    {
+        static::correctPluginEntrypoint('csv');
+    }
+
+    /**
+     * @return void
+     */
+    public static function correctProtobufPluginEntrypoint(): void
+    {
+        static::correctPluginEntrypoint('protobuf');
+    }
+
+    /**
+     * @param string $path
+     */
+    protected static function makeBinaryExecutable(string $path): void
+    {
+        chmod($path, 0777 & ~umask());
+    }
+
+    /**
+     * @param string $name
+     */
+    protected static function correctPluginEntrypoint(string $name): void
+    {
+        $metadataPath = static::getPluginMetadata($name);
+        $metadata = \json_decode(\file_get_contents($metadataPath), true);
+        if (($metadata['entryPoint'] ?? null) === "pact-$name-plugin") {
+            // not replaced.
+            $metadata['entryPoint'] = static::getPlugin($name, true);
+            \file_put_contents($metadataPath, \json_encode($metadata, JSON_PRETTY_PRINT));
+        }
+    }
+
+    /**
+     * @param string $name
+     * @param bool   $entrypoint
+     *
+     * @return string
+     */
+    protected static function getPlugin(string $name, bool $entrypoint = false): string
+    {
+        $os = PHP_OS === 'Darwin' ? 'osx' : strtolower(PHP_OS_FAMILY);
+        $architecture = in_array(php_uname('m'), ['arm64', 'aarch64']) ? 'aarch64' : 'x86_64';
+        $extension = PHP_OS_FAMILY === 'Windows' ? '.exe' : '';
+
+        if ($entrypoint) {
+            return "bin/pact-{$name}-plugin-{$os}-{$architecture}";
+        }
+
+        return __DIR__ . "/../../../bin/pact-plugins/{$name}/bin/pact-{$name}-plugin-{$os}-{$architecture}{$extension}";
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return string
+     */
+    protected static function getPluginMetadata(string $name): string
+    {
+        return __DIR__ . "/../../../bin/pact-plugins/{$name}/pact-plugin.json";
     }
 }

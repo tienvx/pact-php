@@ -99,6 +99,7 @@ All of the following code will be used exclusively for the Consumer.
                 </array>
             </arguments>
         </listener>
+        <listener class="PhpPact\Consumer\Listener\PactPluginTestListener"/>
     </listeners>
     <php>
         <env name="PACT_CONSUMER_NAME" value="someConsumer"/>
@@ -170,9 +171,9 @@ $response = new ProviderResponse();
 $response
     ->setStatus(200)
     ->addHeader('Content-Type', 'application/json')
-    ->setBody([
+    ->setBody(\json_encode([
         'message' => $matcher->regex('Hello, Bob', '(Hello, )[A-Za-z]')
-    ]);
+    ]));
 ```
 
 In this example, we are using matchers. This allows us to add flexible rules when matching the expectation with the actual value. In the example, you will see regex is used to validate that the response is valid.
@@ -187,33 +188,33 @@ $response = new ProviderResponse();
 $response
     ->setStatus(200)
     ->addHeader('Content-Type', 'application/json')
-    ->setBody([
+    ->setBody(\json_encode([
         'list' => $matcher->eachLike([
             'firstName' => 'Bob',
             'age' => 22
         ])
-    ]);
+    ]));
 ```
 
-Matcher | Explanation | Parameters | Example
----|---|---|---
-term | Match a value against a regex pattern. | Value, Regex Pattern | $matcher->term('Hello, Bob', '(Hello, )[A-Za-z]')
-regex | Alias to term matcher. | Value, Regex Pattern | $matcher->regex('Hello, Bob', '(Hello, )[A-Za-z]')
-dateISO8601 | Regex match a date using the ISO8601 format. | Value (Defaults to 2010-01-01) | $matcher->dateISO8601('2010-01-01')
-timeISO8601 | Regex match a time using the ISO8601 format. | Value (Defaults to T22:44:30.652Z) | $matcher->timeISO8601('T22:44:30.652Z')
-dateTimeISO8601 | Regex match a datetime using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10+01:00) | $matcher->dateTimeISO8601('2015-08-06T16:53:10+01:00')
-dateTimeWithMillisISO8601 | Regex match a datetime with millis using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10.123+01:00) | $matcher->dateTimeWithMillisISO8601('2015-08-06T16:53:10.123+01:00')
-timestampRFC3339 | Regex match a timestamp using the RFC3339 format. | Value (Defaults to Mon, 31 Oct 2016 15:21:41 -0400) | $matcher->timestampRFC3339('Mon, 31 Oct 2016 15:21:41 -0400')
-like | Match a value against its data type. | Value | $matcher->like(12)
-somethingLike | Alias to like matcher. | Value | $matcher->somethingLike(12)
-eachLike | Match on an object like the example. | Value, Min (Defaults to 1) | $matcher->eachLike(12)
-boolean | Match against boolean true. | none | $matcher->boolean()
-integer | Match a value against integer. | Value (Defaults to 13) | $matcher->integer()
-decimal | Match a value against float. | Value (Defaults to 13.01) | $matcher->decimal()
-hexadecimal | Regex to match a hexadecimal number. Example: 3F | Value (Defaults to 3F) | $matcher->hexadecimal('FF')
-uuid | Regex to match a uuid. | Value (Defaults to ce118b6e-d8e1-11e7-9296-cec278b6b50a) | $matcher->uuid('ce118b6e-d8e1-11e7-9296-cec278b6b50a')
-ipv4Address | Regex to match a ipv4 address. | Value (Defaults to 127.0.0.13) | $matcher->ipv4Address('127.0.0.1')
-ipv6Address | Regex to match a ipv6 address. | Value (Defaults to ::ffff:192.0.2.128) | $matcher->ipv6Address('::ffff:192.0.2.1')
+| Matcher                   | Explanation                                                  | Parameters                                               | Example                                                              |
+|---------------------------|--------------------------------------------------------------|----------------------------------------------------------|----------------------------------------------------------------------|
+| term                      | Match a value against a regex pattern.                       | Value, Regex Pattern                                     | $matcher->term('Hello, Bob', '(Hello, )[A-Za-z]')                    |
+| regex                     | Alias to term matcher.                                       | Value, Regex Pattern                                     | $matcher->regex('Hello, Bob', '(Hello, )[A-Za-z]')                   |
+| dateISO8601               | Regex match a date using the ISO8601 format.                 | Value (Defaults to 2010-01-01)                           | $matcher->dateISO8601('2010-01-01')                                  |
+| timeISO8601               | Regex match a time using the ISO8601 format.                 | Value (Defaults to T22:44:30.652Z)                       | $matcher->timeISO8601('T22:44:30.652Z')                              |
+| dateTimeISO8601           | Regex match a datetime using the ISO8601 format.             | Value (Defaults to 2015-08-06T16:53:10+01:00)            | $matcher->dateTimeISO8601('2015-08-06T16:53:10+01:00')               |
+| dateTimeWithMillisISO8601 | Regex match a datetime with millis using the ISO8601 format. | Value (Defaults to 2015-08-06T16:53:10.123+01:00)        | $matcher->dateTimeWithMillisISO8601('2015-08-06T16:53:10.123+01:00') |
+| timestampRFC3339          | Regex match a timestamp using the RFC3339 format.            | Value (Defaults to Mon, 31 Oct 2016 15:21:41 -0400)      | $matcher->timestampRFC3339('Mon, 31 Oct 2016 15:21:41 -0400')        |
+| like                      | Match a value against its data type.                         | Value                                                    | $matcher->like(12)                                                   |
+| somethingLike             | Alias to like matcher.                                       | Value                                                    | $matcher->somethingLike(12)                                          |
+| eachLike                  | Match on an object like the example.                         | Value, Min (Defaults to 1)                               | $matcher->eachLike(12)                                               |
+| boolean                   | Match against boolean true.                                  | none                                                     | $matcher->boolean()                                                  |
+| integer                   | Match a value against integer.                               | Value (Defaults to 13)                                   | $matcher->integer()                                                  |
+| decimal                   | Match a value against float.                                 | Value (Defaults to 13.01)                                | $matcher->decimal()                                                  |
+| hexadecimal               | Regex to match a hexadecimal number. Example: 3F             | Value (Defaults to 3F)                                   | $matcher->hexadecimal('FF')                                          |
+| uuid                      | Regex to match a uuid.                                       | Value (Defaults to ce118b6e-d8e1-11e7-9296-cec278b6b50a) | $matcher->uuid('ce118b6e-d8e1-11e7-9296-cec278b6b50a')               |
+| ipv4Address               | Regex to match a ipv4 address.                               | Value (Defaults to 127.0.0.13)                           | $matcher->ipv4Address('127.0.0.1')                                   |
+| ipv6Address               | Regex to match a ipv6 address.                               | Value (Defaults to ::ffff:192.0.2.128)                   | $matcher->ipv6Address('::ffff:192.0.2.1')                            |
 
 ### Build the Interaction
 
@@ -436,10 +437,11 @@ $contents->song = 'And the wind whispers Mary';
 $metadata = ['queue'=>'And the clowns have all gone to bed', 'routing_key'=>'And the clowns have all gone to bed'];
 
 $builder
+    ->newInteraction()
     ->given('You can hear happiness staggering on down the street')
     ->expectsToReceive('footprints dressed in red')
     ->withMetadata($metadata)
-    ->withContent($contents);
+    ->withContent(\json_encode($contents), 'application/json');
 
 // established mechanism to this via callbacks
 $consumerMessage = new ExampleMessageConsumer();

@@ -37,10 +37,11 @@ class ExampleMessageConsumerTest extends TestCase
         $metadata = ['queue'=>'wind cries', 'routing_key'=>'wind cries'];
 
         $builder
+            ->newInteraction()
             ->given('a message', ['foo'])
             ->expectsToReceive('an alligator named Mary exists')
             ->withMetadata($metadata)
-            ->withContent($contents);
+            ->withContent(\json_encode($contents), 'application/json');
 
         // established mechanism to this via callbacks
         $consumerMessage = new ExampleMessageConsumer();
@@ -63,10 +64,11 @@ class ExampleMessageConsumerTest extends TestCase
         $metadata = ['queue'=>'And the clowns have all gone to bed', 'routing_key'=>'And the clowns have all gone to bed'];
 
         $builder
+            ->newInteraction()
             ->given('You can hear happiness staggering on down the street')
             ->expectsToReceive('footprints dressed in red')
             ->withMetadata($metadata)
-            ->withContent($contents);
+            ->withContent(\json_encode($contents), 'application/json');
 
         // established mechanism to this via callbacks
         $consumerMessage = new ExampleMessageConsumer();

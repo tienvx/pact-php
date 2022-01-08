@@ -3,6 +3,8 @@
 namespace Consumer\Service;
 
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
+use PhpPact\Consumer\Exception\MockServerNotStartedException;
 use PhpPact\Consumer\InteractionBuilder;
 use PhpPact\Consumer\Matcher\Matcher;
 use PhpPact\Consumer\Model\ConsumerRequest;
@@ -16,6 +18,8 @@ class ConsumerServiceHelloTest extends TestCase
      * Example PACT test.
      *
      * @throws Exception
+     * @throws MockServerNotStartedException
+     * @throws GuzzleException
      */
     public function testGetHelloString()
     {
@@ -33,9 +37,9 @@ class ConsumerServiceHelloTest extends TestCase
         $response
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => $matcher->term('Hello, Bob', '(Hello, )[A-Za-z]+')
-            ]);
+            ]));
 
         // Create a configuration that reflects the server that was started. You can create a custom MockServerConfigInterface if needed.
         $config  = new MockServerEnvConfig();

@@ -2,6 +2,7 @@
 
 namespace Consumer\Service;
 
+use GuzzleHttp\Exception\GuzzleException;
 use PhpPact\Consumer\Exception\MockServerNotStartedException;
 use PhpPact\Consumer\InteractionBuilder;
 use PhpPact\Consumer\Model\ConsumerRequest;
@@ -13,6 +14,7 @@ class ConsumerServiceGoodbyeTest extends TestCase
 {
     /**
      * @throws MockServerNotStartedException
+     * @throws GuzzleException
      */
     public function testGetGoodbyeString()
     {
@@ -26,9 +28,9 @@ class ConsumerServiceGoodbyeTest extends TestCase
         $response
             ->setStatus(200)
             ->addHeader('Content-Type', 'application/json')
-            ->setBody([
+            ->setBody(\json_encode([
                 'message' => 'Goodbye, Bob'
-            ]);
+            ]));
 
         $config      = new MockServerEnvConfig();
         $config->setProvider('someProvider');

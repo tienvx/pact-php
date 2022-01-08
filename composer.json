@@ -38,7 +38,8 @@
         "friendsofphp/php-cs-fixer": "^3.0",
         "php-amqplib/php-amqplib": "^3.0",
         "phpstan/phpstan": "^0.12.90",
-        "symfony/process": "^4.2 | ^5.0.9"
+        "symfony/process": "^4.2 | ^5.0.9",
+        "google/protobuf": "^3.19"
     },
     "repositories" : [
         {
@@ -54,6 +55,7 @@
     },
     "autoload-dev": {
         "psr-4": {
+            "": "example/gen",
             "PhpPactTest\\": "tests/PhpPact",
             "Consumer\\": [
                 "example/src/Consumer",
@@ -66,14 +68,22 @@
             "MessageProvider\\": [
                 "example/src/MessageProvider",
                 "example/tests/MessageProvider"
+            ],
+            "Provider\\": [
+                "example/src/Provider"
             ]
         }
     },
     "scripts": {
         "post-update-cmd": [
-            "\\PhpPact\\Standalone\\Scripts::makeStubServiceExecutable"
+            "\\PhpPact\\Standalone\\Scripts::makeStubServiceExecutable",
+            "\\PhpPact\\Standalone\\Scripts::makeCsvPluginExecutable",
+            "\\PhpPact\\Standalone\\Scripts::correctCsvPluginEntrypoint",
+            "\\PhpPact\\Standalone\\Scripts::makeProtobufPluginExecutable",
+            "\\PhpPact\\Standalone\\Scripts::correctProtobufPluginEntrypoint"
         ],
         "start-provider": "php -S localhost:58000 -t example/src/Provider/public/ example/src/Provider/public/proxy.php",
+        "gen-proto": "protoc --php_out=example/gen example/proto/area_calculator.proto",
         "static-code-analysis": "phpstan analyse src/ --level=5 -c phpstan.neon",
         "lint": "php-cs-fixer fix --config .php-cs-fixer.php --dry-run",
         "fix": "php-cs-fixer fix --config .php-cs-fixer.php",
@@ -115,6 +125,36 @@
                 },
                 "url": "https://github.com/pact-foundation/pact-reference/releases/download/libpact_ffi-v{$version}/{$prefix}-{$os}-{$architecture}.{$extension}",
                 "path": "bin/pact-ffi-lib"
+            },
+            "pact-csv-plugin-metadata": {
+                "version": "0.0.3",
+                "url": "https://github.com/pact-foundation/pact-plugins/releases/download/csv-plugin-{$version}/pact-plugin.json",
+                "path": "bin/pact-plugins/csv/pact-plugin.json"
+            },
+            "pact-csv-plugin": {
+                "version": "0.0.3",
+                "variables": {
+                    "{$os}": "PHP_OS === 'Darwin' ? 'osx' : strtolower(PHP_OS_FAMILY)",
+                    "{$architecture}": "php_uname('m') in ['arm64', 'aarch64'] ? 'aarch64' : 'x86_64'",
+                    "{$extension}": "PHP_OS_FAMILY === 'Windows' ? 'exe.gz' : 'gz'"
+                },
+                "url": "https://github.com/pact-foundation/pact-plugins/releases/download/csv-plugin-{$version}/pact-csv-plugin-{$os}-{$architecture}.{$extension}",
+                "path": "bin/pact-plugins/csv/bin"
+            },
+            "pact-protobuf-plugin-metadata": {
+                "version": "0.1.16",
+                "url": "https://github.com/pactflow/pact-protobuf-plugin/releases/download/v-{$version}/pact-plugin.json",
+                "path": "bin/pact-plugins/protobuf/pact-plugin.json"
+            },
+            "pact-protobuf-plugin": {
+                "version": "0.1.16",
+                "variables": {
+                    "{$os}": "PHP_OS === 'Darwin' ? 'osx' : strtolower(PHP_OS_FAMILY)",
+                    "{$architecture}": "php_uname('m') in ['arm64', 'aarch64'] ? 'aarch64' : 'x86_64'",
+                    "{$extension}": "PHP_OS_FAMILY === 'Windows' ? 'exe.gz' : 'gz'"
+                },
+                "url": "https://github.com/pactflow/pact-protobuf-plugin/releases/download/v-{$version}/pact-protobuf-plugin-{$os}-{$architecture}.{$extension}",
+                "path": "bin/pact-plugins/protobuf/bin"
             }
         }
     },
