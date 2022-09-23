@@ -23,8 +23,8 @@ class StubServerTest extends TestCase
             $pid        = $stubServer->start();
             $this->assertTrue(\is_int($pid));
         } finally {
-            $result = $stubServer->stop();
-            $this->assertTrue($result);
+            $exitCode = $stubServer->stop();
+            $this->assertTrue(\is_int($exitCode));
         }
     }
 }

@@ -19,14 +19,8 @@
     ],
     "require": {
         "php": "^7.4|^8.0|^8.1",
-        "ext-openssl": "*",
         "ext-json": "*",
-        "ext-zip": "*",
-        "ext-zlib": "*",
-        "amphp/amp": "^2.5.1",
-        "amphp/byte-stream": "^1.8",
-        "amphp/log": "^1.1",
-        "amphp/process": "^1.1.1",
+        "symfony/process": "^4.4|^5.4|^6.0",
         "guzzlehttp/guzzle": "^6.5.8|^7.4.5",
         "phpunit/phpunit": ">=8.5.23",
         "civicrm/composer-downloads-plugin": "dev-all"
@@ -37,8 +31,7 @@
         "slim/psr7": "^1.2.0",
         "friendsofphp/php-cs-fixer": "^3.0",
         "php-amqplib/php-amqplib": "^3.0",
-        "phpstan/phpstan": "^0.12.90",
-        "symfony/process": "^4.2 | ^5.0.9"
+        "phpstan/phpstan": "^1.8"
     },
     "repositories" : [
         {
