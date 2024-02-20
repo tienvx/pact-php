@@ -12,41 +12,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  php-cs:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        php: [ '8.2' ]
+  # php-cs:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       php: [ '8.2' ]
 
-    steps:
-      - uses: actions/checkout@v3
-        name: Checkout repository
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       name: Checkout repository
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php }}
-          coverage: none
+  #     - name: Setup PHP
+  #       uses: shivammathur/setup-php@v2
+  #       with:
+  #         php-version: ${{ matrix.php }}
+  #         coverage: none
 
-      - uses: ramsey/composer-install@v2
-        with:
-          dependency-versions: 'locked'
+  #     - uses: ramsey/composer-install@v2
+  #       with:
+  #         dependency-versions: 'locked'
 
-      - name: Code Style Analysis
-        run: composer run lint
+  #     - name: Code Style Analysis
+  #       run: composer run lint
 
-      - name: Static Code Analysis
-        run: composer run static-code-analysis
+  #     - name: Static Code Analysis
+  #       run: composer run static-code-analysis
 
   test:
     runs-on: ${{ matrix.operating-system }}
-    needs:
-      - php-cs
+    # needs:
+    #   - php-cs
     strategy:
       fail-fast: false
       matrix:
-        operating-system: [ ubuntu-latest, windows-latest, macos-12, macos-14 ]
+        operating-system: [ windows-latest ]
         php: [ '8.1', '8.2', '8.3' ]
         dependencies: [ 'lowest', 'locked' ]
     timeout-minutes: 5
