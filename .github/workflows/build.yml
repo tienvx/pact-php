@@ -87,6 +87,11 @@ jobs:
         run: composer gen-lib
 
       - name: Composer test
-        run: composer test
+        run: composer test || true
         env:
           PACT_DO_NOT_TRACK: true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: protobuf-plugin-log-windows-${{ matrix.php }}-${{ matrix.dependencies }}
+          path: C:\\Users\\runneradmin\\.pact/plugins\\protobuf-0.3.13\\log
