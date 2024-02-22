@@ -90,6 +90,7 @@ jobs:
         run: composer test || true
         env:
           PACT_DO_NOT_TRACK: true
+          LOG_LEVEL: trace
 
       - uses: actions/upload-artifact@v4
         with:
