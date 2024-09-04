@@ -1,0 +1,61 @@
+{
+  "consumer": {
+    "name": "formUrlEncodedConsumer"
+  },
+  "interactions": [
+    {
+      "description": "A post request to /users",
+      "providerStates": [
+        {
+          "name": "Endpoint is protected"
+        }
+      ],
+      "request": {
+        "body": "fullname=First+Last+Name&email=user%40example.test&password=very%40secure%26password123",
+        "headers": {
+          "Accept": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        "method": "POST",
+        "path": "/users"
+      },
+      "response": {
+        "body": {
+          "id": "6e58b1df-ff80-4031-b7b9-5191e4c74ee8"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "matchingRules": {
+          "body": {
+            "$.id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+                }
+              ]
+            }
+          },
+          "header": {},
+          "status": {}
+        },
+        "status": 201
+      }
+    }
+  ],
+  "metadata": {
+    "pactRust": {
+      "ffi": "0.4.22",
+      "mockserver": "1.2.9",
+      "models": "1.2.3"
+    },
+    "pactSpecification": {
+      "version": "3.0.0"
+    }
+  },
+  "provider": {
+    "name": "formUrlEncodedProvider"
+  }
+}
