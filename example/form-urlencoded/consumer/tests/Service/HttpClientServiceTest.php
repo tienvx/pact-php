@@ -22,7 +22,7 @@ class HttpClientServiceTest extends TestCase
             ->setMethod('POST')
             ->setPath('/users')
             ->addHeader('Content-Type', 'application/x-www-form-urlencoded')
-            ->addHeader('Accept', 'application/json')
+            ->addHeader('Accept', 'application/x-www-form-urlencoded')
             ->setBody(
                 new Text(
                     json_encode([
@@ -49,10 +49,15 @@ class HttpClientServiceTest extends TestCase
         $response = new ProviderResponse();
         $response
             ->setStatus(201)
-            ->addHeader('Content-Type', 'application/json')
-            ->setBody([
-                'id' => $matcher->uuid('6e58b1df-ff80-4031-b7b9-5191e4c74ee8'),
-            ]);
+            ->addHeader('Content-Type', 'application/x-www-form-urlencoded')
+            ->setBody(
+                new Text(
+                    json_encode([
+                        'id' => $matcher->uuid(),
+                    ]),
+                    'application/x-www-form-urlencoded'
+                )
+            );
 
         $config = new MockServerConfig();
         $config
@@ -70,12 +75,14 @@ class HttpClientServiceTest extends TestCase
             ->willRespondWith($response);
 
         $service = new HttpClientService($config->getBaseUri());
-        $body = json_decode($service->createUser(), true);
+        parse_str($body = $service->createUser(), $params);
+        var_dump($body);
         $verifyResult = $builder->verify();
 
         $this->assertTrue($verifyResult);
-        $this->assertArrayHasKey('id', $body);
+        var_dump($params);
+        $this->assertArrayHasKey('id', $params);
         $pattern = Matcher::UUID_V4_FORMAT;
-        $this->assertEquals(1, preg_match("/{$pattern}/", $body['id']));
+        $this->assertEquals(1, preg_match("/{$pattern}/", $params['id']));
     }
 }
