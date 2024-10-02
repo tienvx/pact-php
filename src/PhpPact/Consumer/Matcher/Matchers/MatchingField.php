@@ -9,7 +9,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
 
 class MatchingField extends AbstractMatcher
 {
-    public function __construct(private string $fieldName)
+    public function __construct(private readonly string $fieldName)
     {
         $this->setFormatter($this->createExpressionFormatter());
     }

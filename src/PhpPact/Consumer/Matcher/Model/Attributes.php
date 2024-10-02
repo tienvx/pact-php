@@ -9,7 +9,7 @@ class Attributes
     /**
      * @param array<string, mixed> $data
      */
-    public function __construct(private GeneratorInterface|MatcherInterface $parent, private array $data = [])
+    public function __construct(private readonly GeneratorInterface|MatcherInterface $parent, private readonly array $data = [])
     {
     }
 

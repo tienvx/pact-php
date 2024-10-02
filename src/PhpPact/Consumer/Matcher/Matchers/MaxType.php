@@ -14,9 +14,9 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
 class MaxType extends AbstractMatcher
 {
     public function __construct(
-        private mixed $value,
+        private readonly mixed $value,
         private int $max,
-        private bool $matchingType = true
+        private readonly bool $matchingType = true
     ) {
         if ($max < 0) {
             trigger_error("[WARN] max value to an array matcher can't be less than zero", E_USER_WARNING);

@@ -9,7 +9,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
 
 abstract class AbstractDateTime extends GeneratorAwareMatcher
 {
-    public function __construct(protected string $format, private ?string $value = null)
+    public function __construct(protected readonly string $format, private readonly ?string $value = null)
     {
         parent::__construct();
     }

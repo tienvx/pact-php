@@ -18,8 +18,8 @@ class Regex extends GeneratorAwareMatcher
      * @param string|string[]|null $values
      */
     public function __construct(
-        private string $regex,
-        protected string|array|null $values = null,
+        private readonly string $regex,
+        protected readonly string|array|null $values = null,
     ) {
         if ($values === null) {
             $this->setGenerator(new RegexGenerator($this->regex));

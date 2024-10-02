@@ -13,7 +13,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class Semver extends GeneratorAwareMatcher
 {
-    public function __construct(private ?string $value = null)
+    public function __construct(private readonly ?string $value = null)
     {
         if ($value === null) {
             $this->setGenerator(new Regex('\d+\.\d+\.\d+'));

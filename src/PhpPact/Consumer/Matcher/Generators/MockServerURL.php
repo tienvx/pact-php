@@ -10,7 +10,7 @@ namespace PhpPact\Consumer\Matcher\Generators;
  */
 class MockServerURL extends AbstractGenerator
 {
-    public function __construct(private string $regex, private string $example)
+    public function __construct(private readonly string $regex, private readonly string $example)
     {
     }
 

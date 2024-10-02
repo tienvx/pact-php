@@ -13,7 +13,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class Boolean extends GeneratorAwareMatcher
 {
-    public function __construct(private ?bool $value = null)
+    public function __construct(private readonly ?bool $value = null)
     {
         if ($value === null) {
             $this->setGenerator(new RandomBoolean());

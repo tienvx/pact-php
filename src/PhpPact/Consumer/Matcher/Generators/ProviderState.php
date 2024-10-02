@@ -9,7 +9,7 @@ namespace PhpPact\Consumer\Matcher\Generators;
  */
 class ProviderState extends AbstractGenerator
 {
-    public function __construct(private string $expression)
+    public function __construct(private readonly string $expression)
     {
     }
 

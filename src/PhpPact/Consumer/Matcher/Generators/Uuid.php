@@ -26,7 +26,7 @@ class Uuid extends AbstractGenerator
         self::URN_FORMAT,
     ];
 
-    public function __construct(private ?string $format = null)
+    public function __construct(private readonly ?string $format = null)
     {
         if ($format && !in_array($format, self::FORMATS, true)) {
             throw new InvalidUuidFormatException(sprintf('Format %s is not supported. Supported formats are: %s', $format, implode(', ', self::FORMATS)));

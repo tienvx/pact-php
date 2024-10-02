@@ -14,9 +14,9 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
 class MinType extends AbstractMatcher
 {
     public function __construct(
-        private mixed $value,
+        private readonly mixed $value,
         private int $min,
-        private bool $matchingType = true
+        private readonly bool $matchingType = true
     ) {
         if ($min < 0) {
             trigger_error("[WARN] min value to an array matcher can't be less than zero", E_USER_WARNING);

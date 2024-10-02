@@ -12,7 +12,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class Equality extends AbstractMatcher
 {
-    public function __construct(private mixed $value)
+    public function __construct(private readonly mixed $value)
     {
         parent::__construct();
     }

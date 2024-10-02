@@ -7,7 +7,7 @@ namespace PhpPact\Consumer\Matcher\Generators;
  */
 class Regex extends AbstractGenerator
 {
-    public function __construct(private string $regex)
+    public function __construct(private readonly string $regex)
     {
     }
 

@@ -14,7 +14,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
 class MinMaxType extends AbstractMatcher
 {
     public function __construct(
-        private mixed $value,
+        private readonly mixed $value,
         private int $min,
         private int $max,
     ) {

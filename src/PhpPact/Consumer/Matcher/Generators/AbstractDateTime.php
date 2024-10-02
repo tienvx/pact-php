@@ -4,7 +4,7 @@ namespace PhpPact\Consumer\Matcher\Generators;
 
 abstract class AbstractDateTime extends AbstractGenerator
 {
-    public function __construct(private ?string $format = null, private ?string $expression = null)
+    public function __construct(private readonly ?string $format = null, private readonly ?string $expression = null)
     {
     }
 

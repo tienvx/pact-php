@@ -17,7 +17,7 @@ class EachKey extends AbstractMatcher
      * @param array<mixed>|object $value
      * @param MatcherInterface[]  $rules
      */
-    public function __construct(private object|array $value, private array $rules)
+    public function __construct(private readonly object|array $value, private readonly array $rules)
     {
         parent::__construct();
     }

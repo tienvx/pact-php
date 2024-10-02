@@ -12,7 +12,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class Includes extends AbstractMatcher
 {
-    public function __construct(private string $value)
+    public function __construct(private readonly string $value)
     {
         parent::__construct();
     }

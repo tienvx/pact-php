@@ -15,7 +15,7 @@ abstract class CombinedMatchers extends AbstractMatcher implements CombinedMatch
      * @param array<mixed>|object $value
      * @param MatcherInterface[] $matchers
      */
-    public function __construct(private object|array $value, array $matchers)
+    public function __construct(private readonly object|array $value, array $matchers)
     {
         foreach ($matchers as $matcher) {
             if ($matcher instanceof CombinedMatchersInterface) {

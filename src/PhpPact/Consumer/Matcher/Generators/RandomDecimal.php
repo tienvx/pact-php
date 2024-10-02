@@ -7,7 +7,7 @@ namespace PhpPact\Consumer\Matcher\Generators;
  */
 class RandomDecimal extends AbstractGenerator
 {
-    public function __construct(private int $digits = 10)
+    public function __construct(private readonly int $digits = 10)
     {
     }
 

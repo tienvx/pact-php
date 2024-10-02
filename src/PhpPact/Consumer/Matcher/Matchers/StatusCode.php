@@ -15,7 +15,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class StatusCode extends GeneratorAwareMatcher
 {
-    public function __construct(private string $status, private ?int $value = null)
+    public function __construct(private readonly string $status, private readonly ?int $value = null)
     {
         if (!in_array($status, HttpStatus::all())) {
             throw new InvalidHttpStatusException(sprintf("Status '%s' is not supported. Supported status are: %s", $status, implode(', ', HttpStatus::all())));

@@ -13,7 +13,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class Decimal extends GeneratorAwareMatcher
 {
-    public function __construct(private ?float $value = null)
+    public function __construct(private readonly ?float $value = null)
     {
         if ($value === null) {
             $this->setGenerator(new RandomDecimal());

@@ -15,7 +15,7 @@ class StringValue extends GeneratorAwareMatcher
 {
     public const DEFAULT_VALUE = 'some string';
 
-    public function __construct(private ?string $value = null)
+    public function __construct(private readonly ?string $value = null)
     {
         if ($value === null) {
             $this->setGenerator(new RandomString());

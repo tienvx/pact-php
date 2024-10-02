@@ -13,7 +13,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class Number extends GeneratorAwareMatcher
 {
-    public function __construct(private int|float|null $value = null)
+    public function __construct(private readonly int|float|null $value = null)
     {
         if ($value === null) {
             $this->setGenerator(new RandomInt());

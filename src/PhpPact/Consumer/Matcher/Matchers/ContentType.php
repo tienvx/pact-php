@@ -12,7 +12,7 @@ use PhpPact\Consumer\Matcher\Model\JsonFormatterInterface;
  */
 class ContentType extends AbstractMatcher
 {
-    public function __construct(private string $contentType, private string $value = '')
+    public function __construct(private readonly string $contentType, private readonly string $value = '')
     {
         parent::__construct();
     }

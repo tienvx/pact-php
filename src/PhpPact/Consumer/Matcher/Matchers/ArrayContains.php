@@ -15,7 +15,7 @@ class ArrayContains extends AbstractMatcher
     /**
      * @param array<mixed> $variants
      */
-    public function __construct(private array $variants)
+    public function __construct(private readonly array $variants)
     {
         parent::__construct();
     }

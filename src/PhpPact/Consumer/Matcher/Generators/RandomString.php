@@ -7,7 +7,7 @@ namespace PhpPact\Consumer\Matcher\Generators;
  */
 class RandomString extends AbstractGenerator
 {
-    public function __construct(private int $size = 10)
+    public function __construct(private readonly int $size = 10)
     {
     }
 
