@@ -61,4 +61,24 @@ class SyncMessageDriver extends AbstractMessageDriver implements SyncMessageDriv
             }
         }
     }
+
+    protected function expectsToReceive(Message $message): void
+    {
+        $success = $this->client->uponReceiving($message->getHandle(), $message->getDescription());
+        if (!$success) {
+            throw new InteractionNotModifiedException();
+        }
+    }
+
+    protected function withMetadata(Message $message): void
+    {
+        // foreach ($message->getMetadata() as $key => $value) {
+        //     $this->client->messageWithMetadataV2($message->getHandle(), (string) $key, (string) $value);
+        // }
+    }
+
+    // protected function withContents(Message $message): void
+    // {
+    //     // $this->messageBodyDriver->registerBody($message);
+    // }
 }
