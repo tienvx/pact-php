@@ -46,12 +46,12 @@ abstract class AbstractMessageDriver extends AbstractDriver implements SharedMes
         $message->setHandle($handle);
     }
 
-    private function withContents(Message $message): void
+    protected function withContents(Message $message): void
     {
         $this->messageBodyDriver->registerBody($message);
     }
 
-    private function expectsToReceive(Message $message): void
+    protected function expectsToReceive(Message $message): void
     {
         $this->client->messageExpectsToReceive($message->getHandle(), $message->getDescription());
     }
@@ -66,7 +66,7 @@ abstract class AbstractMessageDriver extends AbstractDriver implements SharedMes
         }
     }
 
-    private function withMetadata(Message $message): void
+    protected function withMetadata(Message $message): void
     {
         foreach ($message->getMetadata() as $key => $value) {
             $this->client->messageWithMetadataV2($message->getHandle(), (string) $key, (string) $value);
