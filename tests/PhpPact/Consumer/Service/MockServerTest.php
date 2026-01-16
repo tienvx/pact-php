@@ -8,6 +8,7 @@ use PhpPact\Consumer\Exception\MockServerPactFileNotWrittenException;
 use PhpPact\Consumer\Model\Pact\Pact;
 use PhpPact\Consumer\Service\MockServer;
 use PhpPact\Consumer\Service\MockServerInterface;
+use PhpPact\Consumer\Service\WaiterInterface;
 use PhpPact\FFI\ClientInterface;
 use PhpPact\Standalone\MockService\MockServerConfig;
 use PhpPact\Standalone\MockService\MockServerConfigInterface;
@@ -23,6 +24,7 @@ class MockServerTest extends TestCase
     protected MockServerInterface $mockServer;
     protected PactDriverInterface&MockObject $pactDriver;
     protected MockServerConfigInterface $config;
+    protected WaiterInterface&MockObject $waiter;
     protected int $pactHandle = 123;
     protected string $host = 'example.test';
     protected int $port = 123;
@@ -32,8 +34,9 @@ class MockServerTest extends TestCase
     {
         $this->client = $this->createMock(ClientInterface::class);
         $this->pactDriver = $this->createMock(PactDriverInterface::class);
+        $this->waiter = $this->createMock(WaiterInterface::class);
         $this->config = new MockServerConfig();
-        $this->mockServer = new MockServer($this->client, $this->pactDriver, $this->config);
+        $this->mockServer = new MockServer($this->client, $this->pactDriver, $this->config, $this->waiter);
     }
 
     #[TestWith([234, true])]
@@ -65,6 +68,10 @@ class MockServerTest extends TestCase
     {
         $this->config->setPort($this->port);
         $this->config->setPactDir($this->pactDir);
+        $this->waiter
+            ->expects($this->once())
+            ->method('waitUntil')
+            ->willReturnCallback(fn (callable $callback) => $callback());
         $this->expectsMockServerMatched($this->port, $matched);
         $this->expectsWritePactFile($this->port, $this->pactDir, false, 0, $matched);
         $this->expectsMockServerMismatches($this->port, '', $matched);

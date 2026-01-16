@@ -41,4 +41,8 @@ interface MockServerConfigInterface extends PactConfigInterface
     public function setSecure(bool $secure): self;
 
     public function getBaseUri(): UriInterface;
+
+    public function setWaitTimeout(int $waitTimeout): self;
+
+    public function getWaitTimeout(): int;
 }

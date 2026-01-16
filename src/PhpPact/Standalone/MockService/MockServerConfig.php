@@ -27,6 +27,13 @@ class MockServerConfig extends PactConfig implements MockServerConfigInterface
     private bool $secure = false;
 
     /**
+     * Number of seconds to wait for requests to come to mock server.
+     *
+     * @var int
+     */
+    private int $waitTimeout = 1;
+
+    /**
      * {@inheritdoc}
      */
     public function getHost(): string
@@ -88,5 +95,17 @@ class MockServerConfig extends PactConfig implements MockServerConfigInterface
         $protocol = $this->secure ? 'https' : 'http';
 
         return new Uri("{$protocol}://{$this->getHost()}:{$this->getPort()}");
+    }
+
+    public function setWaitTimeout(int $waitTimeout): self
+    {
+        $this->waitTimeout = $waitTimeout;
+
+        return $this;
+    }
+
+    public function getWaitTimeout(): int
+    {
+        return $this->waitTimeout;
     }
 }
