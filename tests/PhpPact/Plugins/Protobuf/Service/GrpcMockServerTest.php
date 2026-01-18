@@ -10,7 +10,7 @@ class GrpcMockServerTest extends MockServerTest
     public function setUp(): void
     {
         parent::setUp();
-        $this->mockServer = new GrpcMockServer($this->client, $this->pactDriver, $this->config, $this->waiter);
+        $this->mockServer = new GrpcMockServer($this->client, $this->pactDriver, $this->config);
     }
 
     protected function getTransport(bool $secure): string

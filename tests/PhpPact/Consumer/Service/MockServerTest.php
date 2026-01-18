@@ -24,7 +24,6 @@ class MockServerTest extends TestCase
     protected MockServerInterface $mockServer;
     protected PactDriverInterface&MockObject $pactDriver;
     protected MockServerConfigInterface $config;
-    protected WaiterInterface&MockObject $waiter;
     protected int $pactHandle = 123;
     protected string $host = 'example.test';
     protected int $port = 123;
@@ -34,9 +33,8 @@ class MockServerTest extends TestCase
     {
         $this->client = $this->createMock(ClientInterface::class);
         $this->pactDriver = $this->createMock(PactDriverInterface::class);
-        $this->waiter = $this->createMock(WaiterInterface::class);
         $this->config = new MockServerConfig();
-        $this->mockServer = new MockServer($this->client, $this->pactDriver, $this->config, $this->waiter);
+        $this->mockServer = new MockServer($this->client, $this->pactDriver, $this->config);
     }
 
     #[TestWith([234, true])]
@@ -62,26 +60,22 @@ class MockServerTest extends TestCase
         $this->assertSame($returnedPort, $this->config->getPort());
     }
 
-    #[TestWith([false])]
-    #[TestWith([true])]
-    public function testVerify(bool $matched): void
+    #[TestWith([false, '[{"method":"POST","path":"/path","type":"request-mismatch","mismatches":[{"expected":"value2","actual":"value1","mismatch":"value1 is not the same with value2","type":"BodyMismatch"}]}]'])]
+    #[TestWith([true, '[]'])]
+    public function testVerify(bool $matched, string $mismatches): void
     {
         $this->config->setPort($this->port);
         $this->config->setPactDir($this->pactDir);
-        $this->waiter
-            ->expects($this->once())
-            ->method('waitUntil')
-            ->willReturnCallback(fn (callable $callback, callable $check) => $callback());
         $this->expectsMockServerMatched($this->port, $matched);
         $this->expectsWritePactFile($this->port, $this->pactDir, false, 0, $matched);
-        $this->expectsMockServerMismatches($this->port, '');
+        $this->expectsMockServerMismatches($this->port, $mismatches);
         $this->expectsCleanupMockServer($this->port, true);
         $this->pactDriver
             ->expects($this->once())
             ->method('cleanUp');
         $result = $this->mockServer->verify();
         $this->assertSame($matched, $result->matched);
-        $this->assertSame('', $result->mismatches);
+        $this->assertSame($mismatches, $result->mismatches);
     }
 
     #[TestWith([0, WriteMode::OVERWRITE])]

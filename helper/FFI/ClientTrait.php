@@ -357,13 +357,13 @@ trait ClientTrait
             ->willReturn($result);
     }
 
-    protected function expectsMockServerMismatches(int $port, string $result): void
+    protected function expectsMockServerMismatches(int $port, string $mismatches): void
     {
         $this->client
             ->expects($this->once())
             ->method('mockServerMismatches')
             ->with($port)
-            ->willReturn($result);
+            ->willReturn($mismatches);
     }
 
     protected function expectsWritePactFile(int $port, string $directory, bool $overwrite, int $result, bool $matched): void

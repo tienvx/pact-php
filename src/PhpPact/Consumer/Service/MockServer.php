@@ -14,15 +14,11 @@ use PhpPact\Standalone\MockService\Model\VerifyResult;
 
 class MockServer implements MockServerInterface
 {
-    private readonly WaiterInterface $waiter;
-
     public function __construct(
         private readonly ClientInterface $client,
         private readonly PactDriverInterface $pactDriver,
-        private readonly MockServerConfigInterface $config,
-        ?WaiterInterface $waiter = null
+        private readonly MockServerConfigInterface $config
     ) {
-        $this->waiter = $waiter ?? new Waiter($this->config->getWaitTimeout());
     }
 
     public function start(): void
@@ -98,7 +94,15 @@ class MockServer implements MockServerInterface
 
     private function waitForMatching(): VerifyResult
     {
-        return $this->waiter->waitUntil($this->getVerifyResult(...), $this->canStopWaiting(...));
+        $end = microtime(true) + $this->config->getWaitTimeout();
+        do {
+            $result = $this->getVerifyResult();
+            if ($this->canStopWaiting($result)) {
+                return $result;
+            }
+            usleep(1000);
+        } while (microtime(true) <= $end);
+        return $result;
     }
 
     private function getVerifyResult(): VerifyResult
@@ -111,6 +115,10 @@ class MockServer implements MockServerInterface
 
     private function canStopWaiting(VerifyResult $result): bool
     {
-        return $result->matched || !empty($result->mismatches);
+        $mismatches = (array)json_decode($result->mismatches);
+        if (!$result->matched && !empty($mismatches)) {
+            var_dump($mismatches);
+        }
+        return $result->matched || !empty($mismatches);
     }
 }
