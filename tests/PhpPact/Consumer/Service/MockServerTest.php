@@ -71,10 +71,10 @@ class MockServerTest extends TestCase
         $this->waiter
             ->expects($this->once())
             ->method('waitUntil')
-            ->willReturnCallback(fn (callable $callback) => $callback());
+            ->willReturnCallback(fn (callable $callback, callable $check) => $callback());
         $this->expectsMockServerMatched($this->port, $matched);
         $this->expectsWritePactFile($this->port, $this->pactDir, false, 0, $matched);
-        $this->expectsMockServerMismatches($this->port, '', $matched);
+        $this->expectsMockServerMismatches($this->port, '');
         $this->expectsCleanupMockServer($this->port, true);
         $this->pactDriver
             ->expects($this->once())

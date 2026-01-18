@@ -8,16 +8,16 @@ class Waiter implements WaiterInterface
     {
     }
 
-    public function waitUntil(callable $callback): bool
+    public function waitUntil(callable $callback, callable $check): mixed
     {
         $end = microtime(true) + $this->timeout;
-        while (microtime(true) <= $end) {
+        do {
             $result = $callback();
-            if ($result) {
-                return true;
+            if ($check($result)) {
+                return $result;
             }
             usleep($this->duration);
-        }
-        return false;
+        } while (microtime(true) <= $end);
+        return $result;
     }
 }

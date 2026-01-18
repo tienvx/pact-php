@@ -44,15 +44,12 @@ class MockServer implements MockServerInterface
     public function verify(): VerifyResult
     {
         try {
-            $matched = $this->waitForMatching();
+            $result = $this->waitForMatching();
 
-            if ($matched) {
+            if ($result->matched) {
                 $this->writePact();
-            } else {
-                $mismatches = $this->getMismatches();
             }
-
-            return new VerifyResult($matched, $mismatches ?? '');
+            return $result;
         } finally {
             $this->cleanUp();
         }
@@ -99,8 +96,21 @@ class MockServer implements MockServerInterface
         return $this->client->mockServerMismatches($this->config->getPort());
     }
 
-    private function waitForMatching(): bool
+    private function waitForMatching(): VerifyResult
     {
-        return $this->waiter->waitUntil($this->isMatched(...));
+        return $this->waiter->waitUntil($this->getVerifyResult(...), $this->canStopWaiting(...));
+    }
+
+    private function getVerifyResult(): VerifyResult
+    {
+        $matched = $this->isMatched();
+        $mismatches = $this->getMismatches();
+
+        return new VerifyResult($matched, $mismatches);
+    }
+
+    private function canStopWaiting(VerifyResult $result): bool
+    {
+        return $result->matched || !empty($result->mismatches);
     }
 }
