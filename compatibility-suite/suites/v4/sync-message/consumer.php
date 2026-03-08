@@ -16,7 +16,13 @@ return (new Config())
             ->addContext(
                 ConsumerContext::class,
                 [
+                    '@specification',
                     '@sync_message_pact_writer',
+                    '@fixture_loader',
+                    '@parser',
+                    '@sync_message_generator_builder',
+                    '@body_validator',
+                    '@body_storage',
                 ]
             )
             ->withPaths('%paths.base%/compatibility-suite/pact-compatibility-suite/features/V4')

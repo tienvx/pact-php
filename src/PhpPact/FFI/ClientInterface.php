@@ -39,6 +39,8 @@ interface ClientInterface
 
     public function messageWithMetadataV2(int $message, string $key, string $value): void;
 
+    public function withMetadata(int $interaction, string $key, string $value, int $part): bool;
+
     public function messageGiven(int $message, string $name): void;
 
     public function messageGivenWithParam(int $message, string $name, string $key, string $value): void;

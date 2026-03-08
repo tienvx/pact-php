@@ -174,6 +174,12 @@ class Client implements ClientInterface
         $this->call($method, $message, $key, $value);
     }
 
+    public function withMetadata(int $interaction, string $key, string $value, int $part): bool
+    {
+        $method = 'pactffi_with_metadata';
+        return (bool) $this->call($method, $interaction, $key, $value, $part);
+    }
+
     public function messageGiven(int $message, string $name): void
     {
         $method = 'pactffi_message_given';
