@@ -1,0 +1,50 @@
+{
+  "consumer": {
+    "name": "sseConsumer"
+  },
+  "interactions": [
+    {
+      "description": "request for events",
+      "pending": false,
+      "providerStates": [
+        {
+          "name": "events file exist"
+        }
+      ],
+      "request": {
+        "headers": {
+          "Accept": [
+            "text/event-stream"
+          ]
+        },
+        "method": "GET",
+        "path": "/events"
+      },
+      "response": {
+        "status": 200
+      },
+      "transport": "http",
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pactRust": {
+      "ffi": "0.5.3",
+      "mockserver": "2.2.1",
+      "models": "1.3.9"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    },
+    "plugins": [
+      {
+        "configuration": {},
+        "name": "sse",
+        "version": "1.0.0-alpha2"
+      }
+    ]
+  },
+  "provider": {
+    "name": "sseProvider"
+  }
+}
