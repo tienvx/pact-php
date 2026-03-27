@@ -41,8 +41,15 @@
         "rector/rector": "^2.0",
         "clue/framework-x": "^0.17.0",
         "grpc/grpc": "^1.57",
-        "google/protobuf": "^4.31"
+        "google/protobuf": "^4.31",
+        "xadammr/sse-client": "dev-master"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/xadammr/sse-client"
+        }
+    ],
     "suggest": {
         "ext-grpc": "If you want to use gRPC then you must install and use this"
     },
