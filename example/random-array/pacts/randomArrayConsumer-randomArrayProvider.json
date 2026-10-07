@@ -1,0 +1,217 @@
+{
+  "consumer": {
+    "name": "randomArrayConsumer"
+  },
+  "interactions": [
+    {
+      "description": "A request to create orders",
+      "pending": false,
+      "request": {
+        "body": {
+          "content": {
+            "items": [
+              {
+                "name": "xxx",
+                "price": 12
+              }
+            ],
+            "total": 24
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "generators": {
+          "body": {
+            "$.items": {
+              "max": 3,
+              "min": 1,
+              "pact:generator:type": "RandomArray",
+              "pact:matcher:type": "notEmpty",
+              "type": "RandomArray",
+              "value": [
+                {
+                  "name": {
+                    "pact:generator:type": "RandomString",
+                    "pact:matcher:type": "type",
+                    "size": 10,
+                    "value": "xxx"
+                  },
+                  "price": {
+                    "max": 100,
+                    "min": 1,
+                    "pact:generator:type": "RandomInt",
+                    "pact:matcher:type": "integer",
+                    "value": 12
+                  }
+                }
+              ]
+            },
+            "$.items[*].name": {
+              "size": 10,
+              "type": "RandomString"
+            },
+            "$.items[*].price": {
+              "max": 100,
+              "min": 1,
+              "type": "RandomInt"
+            }
+          }
+        },
+        "headers": {
+          "Accept": [
+            "application/json"
+          ],
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.items": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "notEmpty"
+                }
+              ]
+            },
+            "$.items[*].name": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ]
+            },
+            "$.items[*].price": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            },
+            "$.total": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "integer"
+                }
+              ]
+            }
+          }
+        },
+        "method": "POST",
+        "path": "/orders"
+      },
+      "response": {
+        "body": {
+          "content": {
+            "created": [
+              {
+                "id": "",
+                "status": "pending"
+              }
+            ],
+            "success": true
+          },
+          "contentType": "application/json",
+          "encoded": false
+        },
+        "generators": {
+          "body": {
+            "$.created": {
+              "max": 6,
+              "min": 4,
+              "pact:generator:type": "RandomArray",
+              "pact:matcher:type": "notEmpty",
+              "type": "RandomArray",
+              "value": [
+                {
+                  "id": {
+                    "pact:generator:type": "Uuid",
+                    "pact:matcher:type": "regex",
+                    "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$",
+                    "value": ""
+                  },
+                  "status": {
+                    "pact:matcher:type": "equality",
+                    "value": "pending"
+                  }
+                }
+              ]
+            },
+            "$.created[*].id": {
+              "type": "Uuid"
+            }
+          }
+        },
+        "headers": {
+          "Content-Type": [
+            "application/json"
+          ]
+        },
+        "matchingRules": {
+          "body": {
+            "$.created": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "notEmpty"
+                }
+              ]
+            },
+            "$.created[*].id": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$"
+                }
+              ]
+            },
+            "$.created[*].status": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "equality"
+                }
+              ]
+            },
+            "$.success": {
+              "combine": "AND",
+              "matchers": [
+                {
+                  "match": "boolean"
+                }
+              ]
+            }
+          }
+        },
+        "status": 201
+      },
+      "transport": "http",
+      "type": "Synchronous/HTTP"
+    }
+  ],
+  "metadata": {
+    "pactRust": {
+      "ffi": "0.5.10",
+      "mockserver": "2.2.6",
+      "models": "1.3.16"
+    },
+    "pactSpecification": {
+      "version": "4.0"
+    },
+    "plugins": [
+      {
+        "configuration": {},
+        "name": "randomarray",
+        "version": "0.1.0"
+      }
+    ]
+  },
+  "provider": {
+    "name": "randomArrayProvider"
+  }
+}

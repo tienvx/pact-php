@@ -239,6 +239,16 @@
             "rm -f example/server-sent-events/pacts/sseConsumer-sseProvider.json",
             "cd example/server-sent-events/consumer && phpunit",
             "cd example/server-sent-events/provider && phpunit"
+        ],
+        "run-example:random-array:windows": [
+            "powershell -Command \"if (Test-Path 'example/random-array/pacts/randomArrayConsumer-randomArrayProvider.json') { Remove-Item 'example/random-array/pacts/randomArrayConsumer-randomArrayProvider.json' }\"",
+            "cd example/random-array/consumer && phpunit --process-isolation",
+            "cd example/random-array/provider && phpunit --process-isolation"
+        ],
+        "run-example:random-array": [
+            "rm -f example/random-array/pacts/randomArrayConsumer-randomArrayProvider.json",
+            "cd example/random-array/consumer && phpunit",
+            "cd example/random-array/provider && phpunit"
         ]
     },
     "extra": {
